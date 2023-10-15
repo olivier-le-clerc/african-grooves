@@ -1,4 +1,4 @@
-import '../css/index.css';
+import '../css/index.scss';
 
 import { PanZoom } from "./panzoom.js";
 

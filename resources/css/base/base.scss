@@ -1,0 +1,38 @@
+/* == General ========================================== */
+
+body{
+   touch-action: none;
+   height: 100%;
+   overflow: hidden;
+   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+h1 {
+   font-family: 'Qebab';
+   font-weight: bold;
+}
+
+h2 {
+   font-size: min(25px, 5vw);
+   font-family: var(--title-font);
+}
+
+h3 {
+   font-size: min(25px, 4vw);
+   font-family: var(--title-font);
+}
+
+a {
+   text-decoration: none;
+   color: var(--link-color);
+}
+
+a:hover {
+   opacity: 0.8;
+}
+
+button {
+   border: none;
+   color: var(--text-color);
+   background-color: transparent;
+}
