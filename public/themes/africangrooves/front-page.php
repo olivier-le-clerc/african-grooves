@@ -20,26 +20,9 @@
         <?php get_template_part('parts/site-header') ?>
         <div id="controls">
 
-            <div id="audio-player">
-                <?php
-                $playlist = get_tracks()['content'];
-                $current_song = array_shift($playlist);
-                ?>
-                <audio src="<?= $current_song['mp3_path'] ?>"></audio>
+            <ag-audio-player>
 
-                <header>
-                    <div id="title">
-                        <h2 id="audio-player-main-title">Recent Tracks</h2>
-                        <button id="playlist-toggle-button" onclick="togglePlaylist()">
-                            <i class="fa-solid fa-chevron-up"></i>
-                        </button>
-                    </div>
-                    <div id="current-song" class="track" data-id="<?= $current_song['id'] ?>" data-src="<?= $current_song['mp3_path'] ?>">
-                    </div>
-                </header>
-                <div id="playlist">
-                </div>
-            </div>
+            </ag-audio-player>
 
             <template id="track-template">
                 <div class="track" data-src="" data-id="">
@@ -53,7 +36,7 @@
                             <button id="plus" class="player-button button-plus" onclick="postModal()"><i class="fa-solid fa-circle-info"></i></button>
                         </div>
                     </div>
-                </div>
+            </div>
             </template>
 
             <div id="post-modal" class="modal-container">
