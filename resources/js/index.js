@@ -2,8 +2,13 @@ import '../css/index.scss';
 
 import { PanZoom } from "./panzoom.js";
 
-import { AgAudioPlayer } from './AgAudioPlayer';
-let player = AgAudioPlayer()
+import { agAudioPlayer } from './AgAudioPlayer/AgAudioPlayer';
+
+let player = agAudioPlayer()
+
+import { worldmapInit } from './AgWorldmap/AgWorldMap.js';
+
+// let res =  wp.api.utils
 
 // AJAX LOAD //////////////////////////////////////////////////////////////////////
 
@@ -22,8 +27,8 @@ setTimeout(function () {
 }, MIN_TIME_MS);
 
 pageSetup()
-
 loaded = true;
+
 if (elapsed) {
    hideLoadingScreen();
 }
@@ -36,17 +41,24 @@ function hideLoadingScreen() {
 ///// LOADING ROUTINE
 
 function pageSetup() {
-   jQuery(document).ready(function () {
-      // populate map with dynamic data
 
-      populateMap()
+      // populate map with dynamic data
+      worldmapInit()
+      // audio player
+      ajax_get_tracks()
 
       // display content
 
-      let svg = document.querySelector("#worldmap svg")
+      // panzoom init
+      let svg = document.querySelector("ag-worldmap svg")
       new PanZoom(svg).init();
-
-      initAudioPlayer()
+      // country click action
+      svg.addEventListener("click", e => {
+         if (e.target.localName == "path" && e.target.dataset.count > 0) {
+            let country = e.target.dataset.name
+            ajax_get_tracks(country)
+         }
+      })
 
       window.postModal = postModal
       window.closeModal = closeModal
@@ -58,31 +70,6 @@ function pageSetup() {
       if (elapsed) {
          hideLoadingScreen();
       }
-   })
-}
-
-// MAP FUNCTIONS  //////////////////////////////////////////////////////////////////////
-
-function populateMap() {
-   jQuery.ajax({
-      dataType: "json",
-      url: `themes/africangrooves/cache/dynamic_map_data.json`,
-      success: function (data) {
-         // inserts map_data in svg code
-         document.querySelectorAll("#map path").forEach((el) => {
-            let key = data.states[el.id] !== undefined ? el.id : "default";
-            for (let att in data.states[key]) {
-               el.dataset[att] = data.states[key][att];
-            }
-            if (el.dataset["count"] > 0) {
-               el.onclick = function () {
-                  ajax_get_tracks(el.dataset["name"], 'region');
-
-               }
-            }
-         });
-      }
-   });
 }
 
 // MUSIC PLAYER  //////////////////////////////////////////////////////////////////////

@@ -12,32 +12,13 @@
 
 <body id="front-page">
 
-    <div id="worldmap" class="layer show-when-loaded">
-        <?php get_template_part('parts/world-map') ?>
-    </div>
+    <ag-worldmap class="layer show-when-loaded"></ag-worldmap>
 
     <div id="map-ui" class="layer show-when-loaded">
         <?php get_template_part('parts/site-header') ?>
+
         <div id="controls">
-
-            <ag-audio-player>
-
-            </ag-audio-player>
-
-            <template id="track-template">
-                <div class="track" data-src="" data-id="">
-                    <img class="track-thumb">
-                    <div class="track-infos">
-                        <h3 id="track-title" class="track-text track-title"></h3>
-                        <h4 id="track-artist" class="track-text track-artist"></h4>
-                        <div class='controls'>
-                            <button id="play" class="player-button button-play" onclick="playPause()"><i class="fa-solid fa-play"></i></button>
-                            <button id="next" class="player-button button-next" onclick="next()"><i class="fa-solid fa-forward-fast"></i></button>
-                            <button id="plus" class="player-button button-plus" onclick="postModal()"><i class="fa-solid fa-circle-info"></i></button>
-                        </div>
-                    </div>
-            </div>
-            </template>
+            <ag-audio-player></ag-audio-player>
 
             <div id="post-modal" class="modal-container">
                 <div class="modal-background" onclick="closeModal()"></div>
