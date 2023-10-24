@@ -80,27 +80,6 @@ function pageSetup() {
 // let title = audioPlayer.querySelector('#audio-player-main-title');
 
 function initAudioPlayer() {
-   player.audio.addEventListener('playing', e => {
-      let buttons = document.querySelectorAll('.button-play i');
-      buttons.forEach(i => {
-         i.classList.remove('fa-play');
-         i.classList.add('fa-pause');
-      });
-
-   });
-
-   player.audio.addEventListener('pause', e => {
-      let buttons = document.querySelectorAll('.button-play i');
-      buttons.forEach(i => {
-         i.classList.remove('fa-pause');
-         i.classList.add('fa-play');
-      });
-   });
-
-   player.audio.addEventListener('ended', e => {
-      next();
-      audio.play();
-   })
 
    ajax_get_tracks()
 }
