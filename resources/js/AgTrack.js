@@ -10,6 +10,7 @@ export function getTrack(data = null) {
 
     track.data = data
     track.innerHTML = track.template
+
     return track
 }
 
@@ -22,10 +23,8 @@ class AgTrack extends HTMLElement {
     get template() {
         return `
             <img class="track-thumb" src="${this.data.image_path}">
-            <div class="track-infos">
                 <h3 id="track-title" class="track-text track-title">${this.data.song_title}</h3>
                 <h4 id="track-artist" class="track-text track-artist">${this.data.artist}</h4>
-            </div>
         `
     }
 }

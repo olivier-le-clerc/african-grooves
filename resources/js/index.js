@@ -46,6 +46,7 @@ function pageSetup() {
       worldmapInit()
       // audio player
       ajax_get_tracks()
+      player.querySelector('#playlist-toggle-button').addEventListener("click",togglePlaylist)
 
       // display content
 
@@ -60,9 +61,9 @@ function pageSetup() {
          }
       })
 
-      window.postModal = postModal
-      window.closeModal = closeModal
-      window.closeButton = closeButton
+      // window.postModal = postModal
+      // window.closeModal = closeModal
+      // window.closeButton = closeButton
 
       // loader
 
@@ -198,9 +199,11 @@ function update_modal(content) {
 
 ////////////////////////////
 
+console.log(document.querySelector("#playlist-toggle-button"))
+
 function togglePlaylist() {
    let button = document.querySelector("#playlist-toggle-button");
-   let player = document.querySelector("#audio-player");
+   // let player = document.querySelector("#audio-player");
    button.classList.toggle("is-open");
    player.classList.toggle("is-open");
 }
