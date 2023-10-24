@@ -199,12 +199,7 @@ function update_modal(content) {
 
 ////////////////////////////
 
-console.log(document.querySelector("#playlist-toggle-button"))
-
 function togglePlaylist() {
-   let button = document.querySelector("#playlist-toggle-button");
-   // let player = document.querySelector("#audio-player");
-   button.classList.toggle("is-open");
    player.classList.toggle("is-open");
 }
 

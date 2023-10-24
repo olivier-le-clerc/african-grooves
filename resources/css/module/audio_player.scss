@@ -32,7 +32,7 @@
          height: 100vh;
      }
 
-     #playlist-toggle-button.is-open {
+     ag-audio-player.is-open #playlist-toggle-button {
          transform: rotate(180deg);
      }
  }

@@ -1,5 +1,8 @@
-import { getTrack } from "./AgTrack";
-import { audioControls } from "./AudioControls";
+import { AgTrack } from "./AgTrack";
+customElements.define('ag-track',AgTrack)
+
+import { AudioControls } from "./AudioControls";
+customElements.define('audio-controls',AudioControls)
 
 export function agAudioPlayer() {
 
@@ -18,7 +21,7 @@ class AgAudioPlayer extends HTMLElement {
 
         this.innerHTML = this.template
 
-        this.controls = audioControls()
+        this.controls = new AudioControls()
         this.controls.buttons.play.onclick = e => this.toggle()
         this.controls.buttons.next.addEventListener('click', (e) => this.next())
 
@@ -151,7 +154,7 @@ class AgAudioPlayer extends HTMLElement {
             let trackData = playlistData.content.shift();
             // let firstTrack = this.getTrack(trackData);
 
-            let firstTrack = getTrack(trackData);
+            let firstTrack = AgTrack.get(trackData);
 
             firstTrack.id = "current-song"
 
@@ -172,12 +175,6 @@ class AgAudioPlayer extends HTMLElement {
         }
     }
 
-    // static observedAttributes = ["data-current", "data-playing"]
-
-    // attributeChangedCallback(name, oldVal, newVal) {
-    //     console.log(`Attribute ${name} has changed.`);
-    // }
-
     clear() {
         this.playlist.innerHTML = ''
         this.dataset["current"] = 0
@@ -185,7 +182,7 @@ class AgAudioPlayer extends HTMLElement {
     }
 
     add(trackData) {
-        let track = getTrack(trackData)
+        let track = AgTrack.get(trackData)
         track.classList.add('track--future')
         this.playlist.appendChild(track)
     }
