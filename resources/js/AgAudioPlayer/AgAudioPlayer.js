@@ -1,35 +1,38 @@
 import { AgTrack } from "./AgTrack";
-customElements.define('ag-track',AgTrack)
+customElements.define('ag-track', AgTrack)
 
 import { AudioControls } from "./AudioControls";
-customElements.define('audio-controls',AudioControls)
+customElements.define('audio-controls', AudioControls)
 
-export function agAudioPlayer() {
-
-    customElements.define('ag-audio-player', AgAudioPlayer)
-    return document.querySelector('ag-audio-player')
-}
-
-
-class AgAudioPlayer extends HTMLElement {
+export class AgAudioPlayer extends HTMLElement {
 
     constructor(data = null) {
         super()
 
         this.data = {}
-        this.current = 0
+        this.current = -1
+
+        this.settings = {
+            repeat: false,
+        }
 
         this.innerHTML = this.template
 
         this.controls = new AudioControls()
         this.controls.buttons.play.onclick = e => this.toggle()
-        this.controls.buttons.next.addEventListener('click', (e) => this.next())
+        this.controls.buttons.next.addEventListener('click', (e) => this.next(this.isPlaying))
+
+        this.controls.buttons.repeat.addEventListener('click', e => {
+            this.controls.buttons.repeat.classList.toggle('button--is-active')
+            this.settings.repeat = !this.settings.repeat
+        })
 
         this.audio.addEventListener('playing', e => {
             let buttons = document.querySelectorAll('.button-play i');
             buttons.forEach(i => {
                 i.classList.remove('fa-play');
                 i.classList.add('fa-pause');
+
             });
 
         });
@@ -43,7 +46,7 @@ class AgAudioPlayer extends HTMLElement {
         });
 
         this.audio.addEventListener('ended', e => {
-            this.next();
+            this.next(this.isPlaying);
             audio.play();
         })
 
@@ -84,11 +87,11 @@ class AgAudioPlayer extends HTMLElement {
         this.isPlaying ? this.audio.pause() : this.audio.play()
     }
 
-    next() {
-        let wasPlaying = this.isPlaying
+    next(playNext = false) {
 
         this.current++
         if (next = this.querySelector('.track--future')) {
+
             next.classList.remove('track--future');
             next.classList.add('track--previous');
 
@@ -104,14 +107,17 @@ class AgAudioPlayer extends HTMLElement {
             })
 
             this.audio.src = next.dataset.src;
+
+            if (playNext) this.audio.play()
         } else {
-            this.current = 0
+            this.current = -1
+            this.querySelectorAll('.track--previous').forEach(e => {
+                e.classList.remove('track--previous')
+                e.classList.add('track--future')
+            })
+            this.next(this.settings.repeat)
         }
 
-
-
-
-        if (wasPlaying) this.audio.play()
     }
 
     goto(element = null) {
@@ -145,15 +151,10 @@ class AgAudioPlayer extends HTMLElement {
         if (playlistData.content.length > 0) {
 
             // update title
-
-            // let title = document.querySelector('#audio-player-main-title');
             this.title.innerHTML = playlistData.title;
 
             // first track
-
             let trackData = playlistData.content.shift();
-            // let firstTrack = this.getTrack(trackData);
-
             let firstTrack = AgTrack.get(trackData);
 
             firstTrack.id = "current-song"
@@ -168,6 +169,8 @@ class AgAudioPlayer extends HTMLElement {
             playlistData.content.forEach(e => {
                 this.add(e)
             });
+
+            this.next()
 
             if (wasPlaying) {
                 this.audio.play()

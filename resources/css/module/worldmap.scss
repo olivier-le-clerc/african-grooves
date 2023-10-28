@@ -6,22 +6,6 @@
     overflow: hidden;
 }
 
-#map-ui{
-    pointer-events:none;
-    display: flex;
-    flex-direction: column;
-}
-#map-ui #controls *{
-    pointer-events:visible;
-
-
-}
-#map-ui #controls{
-    height:inherit;
-    position: relative;
-}
-
-
 svg#map {
     width: 100%;
     height: 100%;

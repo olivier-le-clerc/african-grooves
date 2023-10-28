@@ -2,9 +2,13 @@ import '../css/index.scss';
 
 import { PanZoom } from "./panzoom.js";
 
-import { agAudioPlayer } from './AgAudioPlayer/AgAudioPlayer';
+import { AgModal } from './AgModal';
+customElements.define('ag-blog-content',AgModal)
 
-let player = agAudioPlayer()
+import { AgAudioPlayer } from './AgAudioPlayer/AgAudioPlayer';
+customElements.define('ag-audio-player',AgAudioPlayer)
+
+let player = document.querySelector('ag-audio-player')
 
 import { worldmapInit } from './AgWorldmap/AgWorldMap.js';
 
