@@ -1,20 +1,20 @@
 @font-face {
     font-family: "Kamryn";
-    src: url(../../static/fonts/kamryn/Kamryn\ 3D\ Italic\ D.otf);
+    src: url(../../static/fonts/kamryn/Kamryn\ 3D\ Italic\ D.otf), format("opentype");;
 }
 
 @font-face {
     font-family: "Rubik";
-    src: url(../../static/fonts/rubik/Rubik-VariableFont_wght.ttf);
+    src: url(../../static/fonts/rubik/Rubik-VariableFont_wght.ttf), format("truetype");
 }
 
 @font-face {
     font-family: "Qebab";
-    src: url(../../static/fonts/qebab-shadow/Quebab-Shadow-ffp.otf);
+    src: url(../../static/fonts/qebab-shadow/Quebab-Shadow-ffp.otf), format("opentype");
 
 }
 
 @font-face {
     font-family: "Abel";
-    src: url(../../static/fonts/abel/Abel-Regular.ttf);
+    src: url(../../static/fonts/abel/Abel-Regular.ttf), format("truetype");
 }

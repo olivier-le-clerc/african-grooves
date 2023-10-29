@@ -1,0 +1,31 @@
+{
+  "resources/js/index.css": {
+    "file": "index-f2c1349f.css",
+    "src": "resources/js/index.css"
+  },
+  "resources/js/index.js": {
+    "assets": [
+      "Rubik-VariableFont_wght-5ed84298.ttf",
+      "Quebab-Shadow-ffp-f8a3e82f.otf",
+      "Abel-Regular-8598fde7.ttf"
+    ],
+    "css": [
+      "index-f2c1349f.css"
+    ],
+    "file": "index-98f5722c.js",
+    "isEntry": true,
+    "src": "resources/js/index.js"
+  },
+  "resources/static/fonts/abel/Abel-Regular.ttf": {
+    "file": "Abel-Regular-8598fde7.ttf",
+    "src": "resources/static/fonts/abel/Abel-Regular.ttf"
+  },
+  "resources/static/fonts/qebab-shadow/Quebab-Shadow-ffp.otf": {
+    "file": "Quebab-Shadow-ffp-f8a3e82f.otf",
+    "src": "resources/static/fonts/qebab-shadow/Quebab-Shadow-ffp.otf"
+  },
+  "resources/static/fonts/rubik/Rubik-VariableFont_wght.ttf": {
+    "file": "Rubik-VariableFont_wght-5ed84298.ttf",
+    "src": "resources/static/fonts/rubik/Rubik-VariableFont_wght.ttf"
+  }
+}
