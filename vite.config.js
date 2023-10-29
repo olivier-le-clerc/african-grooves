@@ -8,6 +8,7 @@ export default defineConfig({
   server: {
     origin: 'http://localhost:5173'
   },
+  base:`/public/themes/${process.env.WP_DEFAULT_THEME}/assets`,
   build: {
     target:'esnext',
     assetsDir: '',

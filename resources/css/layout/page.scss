@@ -1,13 +1,6 @@
 .map-ui{
     pointer-events:none;
-    display: flex;
-    flex-direction: column;
-
-
-}
-
-.map-ui header{
-flex-shrink: 0;
+    position:relative;
 }
 
 .map-ui_body *{
@@ -23,36 +16,35 @@ flex-shrink: 0;
 //     background-color: rgba(0,0,0,0.5);
 // }
 
-// @media screen and (orientation:landscape) {
-//     .map-ui_aside {
-//         right: 0.5%;
-//         top: 1%;
-//         width: 30%;
-//         height: 98%;
-//         max-width: 25rem;
-//     }
-// }
+@media screen and (orientation:landscape) {
+    .map-ui_aside {
+        right: 0.5%;
+        top: 1%;
+        width: 30%;
+        height: 98%;
+        max-width: 25rem;
+    }
+}
 
-// @media screen and (orientation:portrait) {
-//     .map-ui_aside {
-//         width: 100%;
-//         max-height: 100%;
-//         bottom: 0;
-//     }
-// }
+@media screen and (orientation:portrait) {
+    .map-ui_aside {
+        width: 100%;
+        max-height: 100%;
+        bottom: 0;
+    }
+}
 
 $sidebarWidth:300px;
 
 
 .map-ui_body{
-    flex-shrink: 2 ;
-    flex-basis: 0;
-    // height: 100%;
     width: 100%;
-    display: grid;
-    gap:0.5rem;
-    grid-template-rows:auto;
-    grid-template-columns: 1fr $sidebarWidth;
+    display: flex;
+    flex-flow: row-reverse;
+    position: absolute;
+    top:0;
+    right:0;
+    bottom:0;
 }
 
 // .map-ui header{
@@ -63,11 +55,13 @@ $sidebarWidth:300px;
     // grid-area: main;
     // margin-left: 0.5rem;
     background-color: rgba(0,0,0,0.5);
+    display: none;
 }
 
 .map-ui_aside{
-    // grid-area: aside;
+    grid-column: 2;
     max-height: 100%;
+    // grid-area: aside;
     // margin-right: 0.5rem;
 
 }

@@ -18,7 +18,7 @@
         <?php get_template_part('parts/site-header') ?>
 
         <div id="controls" class="map-ui_body container">
-            <div class="map-ui_main">test</div>
+            <div class="map-ui_main"></div>
             <ag-audio-player class="map-ui_aside"></ag-audio-player>
         </div>
 
