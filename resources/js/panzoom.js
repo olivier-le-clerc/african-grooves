@@ -10,13 +10,27 @@ export class PanZoom {
        this.distance = 0
        this.pointers = {}
        // run listeners
-       this.svg.addEventListener('resize', e => this.init());
-       this.svg.addEventListener('wheel', e => this.zoom(e));
-       this.svg.addEventListener('click', e => this.clickHandler(e), true);
-       this.svg.addEventListener('pointerdown', e => this.pointerDownHandler(e));
-       this.svg.addEventListener('pointermove', e => this.pointerMoveHandler(e));
-       this.svg.addEventListener('pointerup', e => this.pointerUpHandler(e));
-       this.svg.addEventListener('pointerleave', e => this.pointerUpHandler(e));
+       this.addEventListeners()
+    }
+
+    addEventListeners(){
+      this.svg.addEventListener('resize', e => this.init());
+      this.svg.addEventListener('wheel', e => this.zoom(e));
+      this.svg.addEventListener('click', e => this.clickHandler(e), true);
+      this.svg.addEventListener('pointerdown', e => this.pointerDownHandler(e));
+      this.svg.addEventListener('pointermove', e => this.pointerMoveHandler(e));
+      this.svg.addEventListener('pointerup', e => this.pointerUpHandler(e));
+      this.svg.addEventListener('pointerleave', e => this.pointerUpHandler(e));
+    }
+
+    removeEventListeners(){
+      this.svg.removeEventListener('resize', e => this.init());
+      this.svg.removeEventListener('wheel', e => this.zoom(e));
+      this.svg.removeEventListener('click', e => this.clickHandler(e), true);
+      this.svg.removeEventListener('pointerdown', e => this.pointerDownHandler(e));
+      this.svg.removeEventListener('pointermove', e => this.pointerMoveHandler(e));
+      this.svg.removeEventListener('pointerup', e => this.pointerUpHandler(e));
+      this.svg.removeEventListener('pointerleave', e => this.pointerUpHandler(e));
     }
  
     init() {

@@ -123,6 +123,7 @@ function generate_dynamic_map_data()
 			'id' => get_term_meta($term->term_id, 'ISO3166', true),
 			// 'term_id' => $term->term_id,
 			'name' => $term->name,
+			'slug' => $term->slug,
 			'count' => $term->count == 0 ? 0 : 1 + (int) (($color_levels - 1) * $term->count / $max_count),
 		];
 	}
@@ -205,7 +206,7 @@ function get_tracks(string $search = 'recent', string $tax = '')
 		$image_id = get_post_thumbnail_id($id) ?? 0;
 		$row = [];
 
-		$row['id'] = $id;
+		$row['post_id'] = $track->post_parent;
 		$row['mp3_path'] = wp_get_attachment_url($track->ID);
 		$row['image_path'] = wp_get_attachment_image_url($image_id);
 		$row['song_title'] = $track->post_title;
@@ -216,44 +217,60 @@ function get_tracks(string $search = 'recent', string $tax = '')
 	return $data;
 }
 
-function get_ajax_tracks()
-{
-	$search =  wp_unslash($_POST['search'] ?? false);
-	$taxonomy = wp_unslash($_POST['taxonomy'] ?? '');
-	if ($search) {
-		wp_send_json(get_tracks($search, $taxonomy));
-	}
-	die();
+// function get_ajax_tracks()
+// {
+// 	$search =  wp_unslash($_POST['search'] ?? false);
+// 	$taxonomy = wp_unslash($_POST['taxonomy'] ?? '');
+// 	if ($search) {
+// 		wp_send_json(get_tracks($search, $taxonomy));
+// 	}
+// 	die();
+// }
+
+// function get_ajax_post()
+// {
+// 	$id = absint($_POST['id']);
+// 	if ($id) {
+// 		$res = [];
+// 		global $post;
+// 		$post = get_post_parent($id);
+// 		setup_postdata($post);
+
+// 		ob_start();
+// 		get_template_part('parts/article');
+// 		$res['content'] = ob_get_clean();
+
+// 		wp_reset_postdata();
+
+// 		// $res = ['content' => "test"];
+// 		wp_send_json($res);
+// 	}
+// 	die();
+// }
+
+function get_song($id){
+	$res = '';
+	global $post;
+	$post = get_post($id);
+	setup_postdata($post);
+
+	ob_start();
+	get_template_part('parts/article');
+	$res = ob_get_clean();
+
+	wp_reset_postdata();
+
+	return $res;
 }
 
-function get_ajax_post()
-{
-	$id = absint($_POST['id']);
-	if ($id) {
-		$res = [];
-		global $post;
-		$post = get_post_parent($id);
-		setup_postdata($post);
-
-		ob_start();
-		get_template_part('parts/article');
-		$res['content'] = ob_get_clean();
-
-		wp_reset_postdata();
-
-		// $res = ['content' => "test"];
-		wp_send_json($res);
-	}
-	die();
-}
-
-function get_ajax_content()
-{
-	$url = sanitize_url($_POST['url']);
-	if ($url) {
-		$query = new WP_Query(wp_parse_url($url)['query']);
-		$res = $query->get_posts();
-		wp_send_json($res);
-	}
-	die();
-}
+// function get_ajax_content($url)
+// {
+// 	// $url = sanitize_url($_POST['url']);
+// 	if ($url) {
+// 		$query = new WP_Query(wp_parse_url($url)['query']);
+// 		$res = $query->get_posts();
+// 		// wp_send_json($res);
+// 		return $res;
+// 	}
+// 	// die();
+// }

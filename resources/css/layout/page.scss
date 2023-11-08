@@ -8,14 +8,6 @@ $sidebarWidth: 300px;
     pointer-events: visible;
 }
 
-.map-ui_main {
-    display: none;
-}
-
-.map-ui_main.show {
-    display: block
-}
-
 @media screen and (orientation:landscape) {
 
     .map-ui {
@@ -26,7 +18,7 @@ $sidebarWidth: 300px;
 
     .map-ui_body {
         gap: 0.5rem;
-        grid-template-columns: 1fr $sidebarWidth;
+        grid-template-columns: minmax(0,1fr) $sidebarWidth;
         grid-template-rows: minmax(0, 1fr);
         display: grid;
         width: 100%;
@@ -53,6 +45,7 @@ $sidebarWidth: 300px;
         position: relative;
         width: 100%;
         height: 100%;
+        padding: 0;
     }
 
     .map-ui_main {
@@ -60,11 +53,13 @@ $sidebarWidth: 300px;
         width: 100%;
         height: 100%;
         z-index: 1;
+        padding: 0.5rem;
     }
 
     .map-ui_aside {
         position: absolute;
         bottom: 0;
         max-height: 100%;
+        width: 100%;
     }
 }

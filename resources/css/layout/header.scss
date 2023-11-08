@@ -18,7 +18,7 @@
    display: flex;
    align-items: center;
    justify-content: space-between;
-   padding: 0 10px 0 10px;
+   // padding: 0 10px 0 10px;
 }
 
 #header-top>* {
@@ -109,7 +109,7 @@
 #search-drawer {
    z-index: 10;
    display: flex;
-   justify-content: center;
+   justify-content:end;
    transition: all .3s;
    background-color: var(--primary-color);
 }

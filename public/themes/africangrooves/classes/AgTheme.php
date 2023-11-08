@@ -25,6 +25,11 @@ class AgTheme
             flush_rewrite_rules();
         });
 
+
+        // custom API endpoints
+
+        AgApi::init();
+
         // AJAX handler
         add_action('wp_ajax_tracks', 'get_ajax_tracks');
         add_action('wp_ajax_nopriv_tracks', 'get_ajax_tracks');
@@ -64,20 +69,20 @@ class AgTheme
                 is_array(wp_remote_get('http://localhost:5173/')) // is Vite.js running
             ) {
                 wp_enqueue_script('vite', 'http://localhost:5173/@vite/client', [], null);
-                wp_enqueue_script('wordplate', 'http://localhost:5173/resources/js/index.js', ['jquery','wp-api'], null);
+                wp_enqueue_script('wordplate', 'http://localhost:5173/resources/js/index.js', ['jquery', 'wp-api'], null);
             } elseif (file_exists($manifestPath)) {
                 $manifest = json_decode(file_get_contents($manifestPath), true);
-                wp_enqueue_script('wordplate', get_theme_file_uri('assets/' . $manifest['resources/js/index.js']['file']), ['jquery','wp-api'], null);
+                wp_enqueue_script('wordplate', get_theme_file_uri('assets/' . $manifest['resources/js/index.js']['file']), ['jquery', 'wp-api'], null);
                 wp_enqueue_style('wordplate', get_theme_file_uri('assets/' . $manifest['resources/js/index.css']['file']), [], null);
             }
             // customize
             wp_add_inline_style('ag-style', AgCustomize::getCustomCss());
             // Font awesome
-            wp_enqueue_script('ag-script', 'https://kit.fontawesome.com/c7d1f21538.js', [], null, true);
-            // api
+            // wp_enqueue_script('font-awesome', 'https://kit.fontawesome.com/c7d1f21538.js', [], null, true);
 
             wp_localize_script('wordplate', 'frontend', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
+                'homeUrl' => home_url()
             ]);
         });
 
@@ -102,8 +107,8 @@ class AgTheme
 
         });
 
-        add_action('admin_menu',function(){
-            remove_submenu_page('themes.php','widgets.php');            
+        add_action('admin_menu', function () {
+            remove_submenu_page('themes.php', 'widgets.php');
         });
 
         // Remove admin toolbar menu items.
@@ -151,43 +156,13 @@ class AgTheme
         });
 
 
-        // add_action('wp_enqueue_scripts', function () {
-        //     wp_register_style('ag-style', get_template_directory_uri() . '/style.css');
-        //     wp_add_inline_style('ag-style', AgCustomize::getCustomCss());
-        //     wp_enqueue_style('ag-style');
-        //     wp_enqueue_script('ag-script', 'https://kit.fontawesome.com/c7d1f21538.js', [], null, true);
-
-        //     if (is_front_page()) {
-        //         wp_register_style('worldmap', get_template_directory_uri() . '/assets/css/worldmap.css');
-        //         wp_enqueue_style('worldmap');
-
-
-        //         wp_enqueue_script('worldmap', get_template_directory_uri() . '/assets/js/worldmap.js', ['jquery'], null, true);
-
-        //         // remplacer par bundle
-        //         add_filter('script_loader_tag', function ($tag, $handle, $src) {
-        //             // if not your script, do nothing and return original $tag
-        //             if ('worldmap' !== $handle) {
-        //                 return $tag;
-        //             }
-        //             // change the script tag by adding type="module" and return it.
-        //             $tag = '<script type="module" src="' . esc_url($src) . '"></script>';
-        //             return $tag;
-        //         }, 10, 3);
-
-        //         wp_localize_script('worldmap', 'frontend', [
-        //             'ajaxUrl' => admin_url('admin-ajax.php'),
-        //         ]);
-        //     }
+        // add_action('widgets_init', function () {
+        //     register_widget(RecentTracksWidget::class);
+        //     register_sidebar([
+        //         'id' => 'sidebar',
+        //         'name' => 'Sidebar de blog',
+        //     ]);
         // });
-
-        add_action('widgets_init', function () {
-            register_widget(RecentTracksWidget::class);
-            register_sidebar([
-                'id' => 'sidebar',
-                'name' => 'Sidebar de blog',
-            ]);
-        });
 
         // adds dropdown extra html to menus with submenus
         add_filter('walker_nav_menu_start_el', function ($output, $item) {

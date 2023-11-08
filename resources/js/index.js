@@ -2,23 +2,23 @@ import '../css/index.scss';
 
 import { PanZoom } from "./panzoom.js";
 
-import { AgModal } from './AgModal';
-customElements.define('ag-blog-content',AgModal)
+// import { worldmapInit } from './AgWorldmap/AgWorldMap.js';
 
-import { AgAudioPlayer } from './AgAudioPlayer/AgAudioPlayer';
-customElements.define('ag-audio-player',AgAudioPlayer)
+import { AgWorldMap } from './customElements/AgWorldMap'
+customElements.define('ag-worldmap', AgWorldMap)
 
-let player = document.querySelector('ag-audio-player')
+import { AgAudioPlayer } from './customElements/AgAudioPlayer/AgAudioPlayer';
+customElements.define('ag-audio-player', AgAudioPlayer)
 
-import { worldmapInit } from './AgWorldmap/AgWorldMap.js';
+import { AgBlogModal } from './customElements/AgBlogModal';
+customElements.define('ag-blog-modal', AgBlogModal)
 
-// let res =  wp.api.utils
-
-// AJAX LOAD //////////////////////////////////////////////////////////////////////
+// import { AgApi } from './AgApi';
+// AgApi.test()
 
 ///// LOADER SCREEN
 
-const MIN_TIME_MS = 2000;
+const MIN_TIME_MS = 2;
 
 var elapsed = false;
 var loaded = false;
@@ -46,172 +46,113 @@ function hideLoadingScreen() {
 
 function pageSetup() {
 
-      // populate map with dynamic data
-      worldmapInit()
-      // audio player
-      ajax_get_tracks()
-      player.querySelector('#playlist-toggle-button').addEventListener("click",togglePlaylist)
+   // populate map with dynamic data
+   // worldmapInit()
+   // audio player
 
-      // display content
 
-      // panzoom init
-      let svg = document.querySelector("ag-worldmap svg")
-      new PanZoom(svg).init();
-      // country click action
-      svg.addEventListener("click", e => {
-         if (e.target.localName == "path" && e.target.dataset.count > 0) {
-            let country = e.target.dataset.name
-            ajax_get_tracks(country)
-         }
-      })
 
-      // window.postModal = postModal
-      // window.closeModal = closeModal
-      // window.closeButton = closeButton
+   // get last tracks
+   fetch('wp-json/africangrooves/v1/tracks/recent')
+      .then(e => e.json())
+      .then(e => player.update(e))
 
-      // loader
+   let player = document.querySelector('ag-audio-player')
 
-      loaded = true;
-      if (elapsed) {
-         hideLoadingScreen();
+
+   player.querySelector('#playlist-toggle-button').onclick = e => player.classList.toggle("is-open")
+
+   // panzoom init
+   let svg = document.querySelector("ag-worldmap svg")
+   new PanZoom(svg).init();
+
+   // country click action
+   svg.addEventListener("click", e => {
+      if (e.target.localName == "path" && e.target.dataset.count > 0) {
+         let country = e.target.dataset.name
+
+         fetch('wp-json/africangrooves/v1/tracks/region/', {
+            method: 'post',
+            headers: {
+               'Accept': 'application/json',
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+               region: country
+            })
+         })
+            .then(e => e.json())
+            .then(e => player.update(e))
       }
-}
+   })
 
-// MUSIC PLAYER  //////////////////////////////////////////////////////////////////////
+   // post display action
+   let modal = document.querySelector('ag-blog-modal')
+   player.controls.buttons.plus.onclick = e => {
+      let id = player.currentTrack.dataset.postId
 
-// let audioPlayer = document.querySelector('ag-audio-player')
-// let audio = audioPlayer.querySelector('audio');
-// let title = audioPlayer.querySelector('#audio-player-main-title');
+      modal.classList.add('is-loading')
+      fetch(`wp-json/africangrooves/v1/song/${id}`)
+         .then(e => e.json())
+         .then(e => modal.setContent(e))
+         .then(e => {
 
-function initAudioPlayer() {
+            // remplace le lecteur
+            let audio = modal.querySelector('audio');
+            if (audio !== null) {
+               // audio player replacement
+               let button = document.createElement('button');
+               button.classList.add('player-button', 'button--big', 'button-play', 'button--contrast');
+               if (player.isPlaying) {
+                  button.innerHTML = '<i class="fa-solid fa-pause"></i>';
+               } else {
+                  button.innerHTML = '<i class="fa-solid fa-play"></i>';
+               }
+               button.addEventListener('click', player.toggle);
+               audio.replaceWith(button);
+            }
 
-   ajax_get_tracks()
-}
+            modal.classList.remove('is-loading')
+            modal.classList.add('is-visible')
+         })
+   }
 
-function ajax_get_tracks(search_string = 'recent', taxonomy = '') {
-   jQuery.ajax({
-      type: "POST",
-      dataType: "json",
-      url: frontend.ajaxUrl,
-      data: {
-         action: "tracks",
-         taxonomy: taxonomy,
-         search: search_string,
-      },
-      success: function (data) {
-         player.update(data);
-      },
-   });
-}
+   // constent display
+   window.addEventListener('click', e => {
 
-//  MODAL  /////////////////
+      let link = e.target.href ?? null
 
-function postModal() {
-   let modal = document.querySelector("#post-modal");
-   let id = document.querySelector("#current-song").dataset['id'];
-   modal.classList.add('is-loading');
+      if (link && link.includes(document.location)) { // lien interne au site
+         e.preventDefault()
 
-   jQuery.ajax({
-      type: "POST",
-      dataType: "json",
-      url: frontend.ajaxUrl,
-      timeout: 3000,
-      data: {
-         action: "post",
-         id: id,
-      },
-      success: function (data) {
-         update_modal(data.content);
-      },
-      error: function () {
-         modal.classList.remove('is-loading');
+         modal.setContent('')
+         modal.classList.add('is-loading');
+
+         fetch(link, {
+            mode: 'cors',
+            credentials: 'include'
+         })
+            .then(e => e.text())
+            .then(e => {
+               let regex = /<main>.*<\/main>/s
+               let res = e.match(regex)[0] ?? null
+               if (res) {
+                  modal.setContent(res)
+                  modal.classList.add('is-visible')
+               }
+               modal.classList.remove('is-loading')
+            })
+            .catch(e => modal.classList.remove('is-visible'))
+            .finally(e => modal.classList.remove('is-loading'))
+
+
+         console.log(link)
       }
-   });
-}
+   })
 
-function closeButton() {
-   const isMobile = ('ontouchstart' in document.documentElement && navigator.userAgent.match(/Mobi/));
-   if (isMobile) {
-      history.back();
-   } else {
-      closeModal();
+   // loader
+   loaded = true;
+   if (elapsed) {
+      hideLoadingScreen();
    }
 }
-
-function closeModal() {
-   let modal = document.querySelector("#post-modal");
-   modal.classList.remove('is-active', 'is-loading');
-}
-
-function update_modal(content) {
-   let modal = document.querySelector("#post-modal");
-   let e = document.querySelector("#article-body");
-   e.innerHTML = content;
-
-   let audio = e.querySelector('audio');
-   if(audio !==null){
-   // audio player replacement
-   let button = document.createElement('button');
-   button.classList.add('player-button', 'button--big', 'button-play');
-   if (isPlaying()) {
-      button.innerHTML = '<i class="fa-solid fa-pause"></i>';
-   } else {
-      button.innerHTML = '<i class="fa-solid fa-play"></i>';
-   }
-   button.addEventListener('click', playPause);
-   audio.replaceWith(button);
-   }
-
-
-   // change le comportement de la touche retour sur mobile
-   const isMobile = ('ontouchstart' in document.documentElement && navigator.userAgent.match(/Mobi/));
-   if (isMobile) {
-      if (window.history && window.history.pushState) {
-         history.pushState('modalShow', '', "");
-         window.onpopstate = (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            closeModal();
-            window.onpopstate = () => { };
-         }
-      }
-   }
-   modal.classList.remove('is-loading');
-   modal.classList.add('is-active');
-}
-
-////////////////////////////
-
-function togglePlaylist() {
-   player.classList.toggle("is-open");
-}
-
-let navbar = document.querySelectorAll("#site-header a")
-navbar.forEach(e=>{
-   e.addEventListener('click',(i)=>{
-      i.preventDefault()
-      let search = i.target.href
-
-      let modal = document.querySelector("#post-modal");
-      let id = document.querySelector("#current-song").dataset['id'];
-      modal.classList.add('is-loading');
-   
-      jQuery.ajax({
-         type: "POST",
-         dataType: "json",
-         url: frontend.ajaxUrl,
-         timeout: 3000,
-         data: {
-            action: "content",
-            url: search
-         },
-         success: function (data) {
-            console.log(data)
-            update_modal(data[0].post_content);
-         },
-         error: function () {
-            console.log('fail')
-            modal.classList.remove('is-loading');
-         }
-      });
-   })})
