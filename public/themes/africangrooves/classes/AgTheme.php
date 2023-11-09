@@ -65,19 +65,17 @@ class AgTheme
                 is_array(wp_remote_get('http://localhost:5173/')) // is Vite.js running
             ) {
                 wp_enqueue_script('vite', 'http://localhost:5173/@vite/client', [], null);
-                wp_enqueue_script('wordplate', 'http://localhost:5173/resources/js/index.js', ['jquery', 'wp-api'], null);
+                wp_enqueue_script('wordplate', 'http://localhost:5173/resources/js/index.js', [], null);
             } elseif (file_exists($manifestPath)) {
                 $manifest = json_decode(file_get_contents($manifestPath), true);
-                wp_enqueue_script('wordplate', get_theme_file_uri('assets/' . $manifest['resources/js/index.js']['file']), ['jquery', 'wp-api'], null);
+                wp_enqueue_script('wordplate', get_theme_file_uri('assets/' . $manifest['resources/js/index.js']['file']), [], null);
                 wp_enqueue_style('wordplate', get_theme_file_uri('assets/' . $manifest['resources/js/index.css']['file']), [], null);
             }
             // customize
             wp_add_inline_style('ag-style', AgCustomize::getCustomCss());
-            // Font awesome
-            // wp_enqueue_script('font-awesome', 'https://kit.fontawesome.com/c7d1f21538.js', [], null, true);
 
             wp_localize_script('wordplate', 'frontend', [
-                'ajaxUrl' => admin_url('admin-ajax.php'),
+                // 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'homeUrl' => home_url()
             ]);
         });
@@ -150,15 +148,6 @@ class AgTheme
                 implode(';', $styles)
             );
         });
-
-
-        // add_action('widgets_init', function () {
-        //     register_widget(RecentTracksWidget::class);
-        //     register_sidebar([
-        //         'id' => 'sidebar',
-        //         'name' => 'Sidebar de blog',
-        //     ]);
-        // });
 
         // adds dropdown extra html to menus with submenus
         add_filter('walker_nav_menu_start_el', function ($output, $item) {

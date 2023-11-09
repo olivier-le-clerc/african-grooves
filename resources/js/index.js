@@ -46,18 +46,18 @@ function hideLoadingScreen() {
 
 function pageSetup() {
 
+   let player = document.querySelector('ag-audio-player')
+   let modal = document.querySelector('ag-blog-modal')
+
    // get last tracks
    fetch('wp-json/africangrooves/v1/tracks/recent')
       .then(e => e.json())
       .then(e => player.update(e))
 
-   let player = document.querySelector('ag-audio-player')
-   let modal = document.querySelector('ag-blog-modal')
-
-
    player.querySelector('#playlist-toggle-button').onclick = e => player.classList.toggle("is-open")
 
    // panzoom init
+
    let svg = document.querySelector("ag-worldmap svg")
    new PanZoom(svg).init();
 
@@ -65,19 +65,7 @@ function pageSetup() {
    svg.addEventListener("click", e => {
       if (e.target.localName == "path" && e.target.dataset.count > 0) {
          let country = e.target.dataset.name
-
-         fetch('wp-json/africangrooves/v1/tracks/region/', {
-            method: 'post',
-            headers: {
-               'Accept': 'application/json',
-               'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-               region: country
-            })
-         })
-            .then(e => e.json())
-            .then(e => player.update(e))
+         player.fetch('wp-json/africangrooves/v1/tracks/region/', { region: country })
       }
    })
 
@@ -85,30 +73,34 @@ function pageSetup() {
    player.controls.buttons.plus.onclick = e => {
       let id = player.currentTrack.dataset.postId
 
-      modal.classList.add('is-loading')
-      fetch(`wp-json/africangrooves/v1/song/${id}`)
-         .then(e => e.json())
-         .then(e => modal.setContent(e))
-         .then(e => {
+      modal.fetch(`wp-json/africangrooves/v1/song/${id}`, {}, e => {
+         return e.replace(/<audio.*audio>.*$/s, 'test')
+      })
 
-            // remplace le lecteur
-            let audio = modal.querySelector('audio');
-            if (audio !== null) {
-               // audio player replacement
-               let button = document.createElement('button');
-               button.classList.add('player-button', 'button--big', 'button-play', 'button--contrast');
-               if (player.isPlaying) {
-                  button.innerHTML = '<i class="fa-solid fa-pause"></i>';
-               } else {
-                  button.innerHTML = '<i class="fa-solid fa-play"></i>';
-               }
-               button.addEventListener('click', player.toggle);
-               audio.replaceWith(button);
-            }
+      // modal.classList.add('is-loading')
+      // fetch(`wp-json/africangrooves/v1/song/${id}`)
+      //    .then(e => e.json())
+      //    .then(e => modal.setContent(e))
+      //    .then(e => {
 
-            modal.classList.remove('is-loading')
-            modal.classList.add('is-visible')
-         })
+      //       // remplace le lecteur
+      //       let audio = modal.querySelector('audio');
+      //       if (audio !== null) {
+      //          // audio player replacement
+      //          let button = document.createElement('button');
+      //          button.classList.add('player-button', 'button--big', 'button-play', 'button--contrast');
+      //          if (player.isPlaying) {
+      //             button.innerHTML = '<i class="fa-solid fa-pause"></i>';
+      //          } else {
+      //             button.innerHTML = '<i class="fa-solid fa-play"></i>';
+      //          }
+      //          button.addEventListener('click', player.toggle);
+      //          audio.replaceWith(button);
+      //       }
+
+      //       modal.classList.remove('is-loading')
+      //       modal.classList.add('is-visible')
+      //    })
    }
 
    // search form
@@ -120,52 +112,42 @@ function pageSetup() {
       let s = input.value
       input.value = ''
 
-      fetch('wp-json/africangrooves/v1/search/', {
-         method: 'post',
-         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-         },
-         body: JSON.stringify({
-            search: s
-         })
-      }).then(e => e.json())
-         .then(e => {
-            player.update(e)
-            // TODO gerer pas de résultats
-         })
-      })
+      player.fetch('wp-json/africangrooves/v1/search/',{search:s})
 
-      // internal links open in modal
-      window.addEventListener('click', e => {
+      // fetch('wp-json/africangrooves/v1/search/', {
+      //    method: 'post',
+      //    headers: {
+      //       'Accept': 'application/json',
+      //       'Content-Type': 'application/json'
+      //    },
+      //    body: JSON.stringify({
+      //       search: s
+      //    })
+      // }).then(e => e.json())
+      //    .then(e => {
+      //       player.update(e)
+      //       // TODO gerer pas de résultats
+      //    })
+   })
 
-         let link = e.target.href ?? null
+   // internal links open in modal
+   document.querySelector('#map-ui').addEventListener('click', e => {
 
-         if (link && link.includes(document.location)) { // lien interne au site
-            e.preventDefault()
+      let link = e.target.href ?? null
 
-            modal.setContent('')
-            modal.classList.add('is-loading');
+      if (link && link.includes(document.location) && !link.includes('wp-admin')) { // lien interne au site
+         e.preventDefault()
 
-            fetch(link)
-               .then(e => e.text())
-               .then(e => {
-                  let regex = /<main>.*<\/main>/s
-                  let res = e.match(regex)[0] ?? null
-                  if (res) {
-                     modal.setContent(res)
-                     modal.classList.add('is-visible')
-                  }
-                  modal.classList.remove('is-loading')
-               })
-               .catch(e => modal.classList.remove('is-visible'))
-               .finally(e => modal.classList.remove('is-loading'))
-         }
-      })
-
-      // loader
-      loaded = true;
-      if (elapsed) {
-         hideLoadingScreen();
+         modal.fetch(link, {}, e => {
+            // get what's between main tags
+            return e.match(/<main>.*<\/main>/s)[0] ?? null
+         }, false)
       }
+   })
+
+   // loader
+   loaded = true;
+   if (elapsed) {
+      hideLoadingScreen();
    }
+}

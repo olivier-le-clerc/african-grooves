@@ -30,5 +30,7 @@
         <h2><?php bloginfo('description') ?></h2>
         <img src="<?= get_stylesheet_directory_uri() . '/assets/img/vinyl.svg' ?>" alt="">
     </div>
+    <?php wp_footer() ?>
+</body>
 
-    <?php get_footer() ?>
+</html>

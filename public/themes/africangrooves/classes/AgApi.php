@@ -32,7 +32,7 @@ class AgApi
             register_rest_route('africangrooves/v1', '/song/(?P<id>[0-9]+)', [
                 'methods' => 'GET',
                 'callback' => function (WP_REST_Request $req) {
-                    return get_song($req->get_param('id'));
+                    return SongPostType::get_song($req->get_param('id'));
                 },
             ]);
 

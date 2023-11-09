@@ -79,7 +79,7 @@ export class AgAudioPlayer extends HTMLElement {
             `
     }
 
-    get currentTrack(){
+    get currentTrack() {
         return this.querySelector('#current-song')
     }
 
@@ -161,7 +161,8 @@ export class AgAudioPlayer extends HTMLElement {
 
         if (playlistData.content.length > 0) {
             // update title
-            this.title.innerHTML = playlistData.title;
+            let title = playlistData.title
+            this.title.innerHTML = title[0].toUpperCase() + title.slice(1);
             // update playlist
             this.clear()
             playlistData.content.forEach(e => this.add(e));
@@ -169,11 +170,28 @@ export class AgAudioPlayer extends HTMLElement {
             this.next()
 
             if (wasPlaying) this.audio.play()
+        } else {
+            this.title.innerHTML = "Aucun résultat"
+            this.clear()
         }
+    }
+
+    fetch(url, args = {}) {
+        fetch(url, {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(args)
+        })
+            .then(e => e.json())
+            .then(e => this.update(e))
     }
 
     clear() {
         this.playlist.innerHTML = ''
+        this.currentTrack.innerHTML=''
         this.dataset["current"] = 0
         this.dataset["playing"] = false
     }

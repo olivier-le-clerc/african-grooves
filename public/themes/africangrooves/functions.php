@@ -13,11 +13,6 @@ spl_autoload_register(function ($class) {
 
 AgTheme::setup();
 
-function ag_pagination()
-{
-	the_posts_pagination();
-}
-
 
 //attachment meta
 add_filter('wp_update_attachment_metadata', function ($data, $post_id) {
@@ -36,7 +31,7 @@ function the_song_title(int|WP_Post $post = null)
 	if (empty($post)) {
 		$post = get_post();
 	}
-	if(is_numeric($post)){
+	if (is_numeric($post)) {
 		$post = get_post($post);
 	}
 	$artist = get_post_meta($post->ID, AgMetaBox::META_KEYS['music_band'], true);
@@ -56,7 +51,7 @@ function the_song_subtitle(WP_Post $post = null)
 	}
 	$year = get_post_meta($post->ID, 'ag_year', true);
 	if ($year) {
-		$year = str_replace('x',"0's",$year);//TODO supprimmer ligne (bdd actualisée)
+		$year = str_replace('x', "0's", $year); //TODO supprimmer ligne (bdd actualisée)
 		$res[] = $year;
 	}
 	$labels = get_the_terms($post->ID, MusicLabelTaxonomy::SLUG, '', ' | ', '');
@@ -216,61 +211,3 @@ function get_tracks(string $search = 'recent', string $tax = '')
 	}
 	return $data;
 }
-
-// function get_ajax_tracks()
-// {
-// 	$search =  wp_unslash($_POST['search'] ?? false);
-// 	$taxonomy = wp_unslash($_POST['taxonomy'] ?? '');
-// 	if ($search) {
-// 		wp_send_json(get_tracks($search, $taxonomy));
-// 	}
-// 	die();
-// }
-
-// function get_ajax_post()
-// {
-// 	$id = absint($_POST['id']);
-// 	if ($id) {
-// 		$res = [];
-// 		global $post;
-// 		$post = get_post_parent($id);
-// 		setup_postdata($post);
-
-// 		ob_start();
-// 		get_template_part('parts/article');
-// 		$res['content'] = ob_get_clean();
-
-// 		wp_reset_postdata();
-
-// 		// $res = ['content' => "test"];
-// 		wp_send_json($res);
-// 	}
-// 	die();
-// }
-
-function get_song($id){
-	$res = '';
-	global $post;
-	$post = get_post($id);
-	setup_postdata($post);
-
-	ob_start();
-	get_template_part('parts/article');
-	$res = ob_get_clean();
-
-	wp_reset_postdata();
-
-	return $res;
-}
-
-// function get_ajax_content($url)
-// {
-// 	// $url = sanitize_url($_POST['url']);
-// 	if ($url) {
-// 		$query = new WP_Query(wp_parse_url($url)['query']);
-// 		$res = $query->get_posts();
-// 		// wp_send_json($res);
-// 		return $res;
-// 	}
-// 	// die();
-// }

@@ -222,4 +222,20 @@ class SongPostType
         }
         return $image_id;
     }
+
+    public static function get_song($id)
+    {
+        $res = '';
+        global $post;
+        $post = get_post($id);
+        setup_postdata($post);
+
+        ob_start();
+        get_template_part('parts/article');
+        $res = ob_get_clean();
+
+        wp_reset_postdata();
+
+        return $res;
+    }
 }

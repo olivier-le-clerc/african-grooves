@@ -64,18 +64,18 @@ class AgTheme
                 is_array(wp_remote_get('http://localhost:5173/')) // is Vite.js running
             ) {
                 wp_enqueue_script('vite', 'http://localhost:5173/@vite/client', [], null);
-                wp_enqueue_script('wordplate', 'http://localhost:5173/resources/js/index.js', ['jquery','wp-api'], null);
+                wp_enqueue_script('wordplate', 'http://localhost:5173/resources/js/index.js', [], null);
             } elseif (file_exists($manifestPath)) {
                 $manifest = json_decode(file_get_contents($manifestPath), true);
-                wp_enqueue_script('wordplate', get_theme_file_uri('assets/' . $manifest['resources/js/index.js']['file']), ['jquery','wp-api'], null);
+                wp_enqueue_script('wordplate', get_theme_file_uri('assets/' . $manifest['resources/js/index.js']['file']), [], null);
                 wp_enqueue_style('wordplate', get_theme_file_uri('assets/' . $manifest['resources/js/index.css']['file']), [], null);
             }
             // customize
             wp_add_inline_style('ag-style', AgCustomize::getCustomCss());
             // Font awesome
             wp_enqueue_script('ag-script', 'https://kit.fontawesome.com/c7d1f21538.js', [], null, true);
-            // api
 
+            // api
             wp_localize_script('wordplate', 'frontend', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
             ]);
@@ -102,8 +102,8 @@ class AgTheme
 
         });
 
-        add_action('admin_menu',function(){
-            remove_submenu_page('themes.php','widgets.php');            
+        add_action('admin_menu', function () {
+            remove_submenu_page('themes.php', 'widgets.php');
         });
 
         // Remove admin toolbar menu items.

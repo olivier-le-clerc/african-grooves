@@ -28,4 +28,21 @@ export class AgBlogModal extends HTMLElement {
         this.querySelector('.slot').innerHTML = val
     }
 
+    fetch(url, args = {}, callback = e => e, json = true) {
+        this.setContent('')
+        this.classList.add('is-loading')
+
+        fetch(url, args)
+            .then(e => json ? e.json() : e.text())
+            .then(e => {
+                e = callback(e)
+                if (e) {
+                    this.setContent(e)
+                    this.classList.add('is-visible')
+                }
+            })
+            .catch(e => this.classList.remove('is-visible'))
+            .finally(e => this.classList.remove('is-loading'))
+    }
+
 }
