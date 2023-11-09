@@ -38,14 +38,12 @@ class AgApi
 
             //  Url  //////////////////////////////////////////////////////////////////
 
-            register_rest_route('africangrooves/v1', '/url/', [
+            register_rest_route('africangrooves/v1', '/search/', [
                 'methods' => 'POST',
                 'callback' => function (WP_REST_Request $req) {
-                    $url = $req->get_json_params()['url'];
-
-                    if ($url) {
-                        $query = new WP_Query($url);
-                        return $query->get_posts();
+                    $s = $req->get_json_params()['search'];
+                    if ($s) {
+                        return get_tracks($s);
                     }
                 },
             ]);

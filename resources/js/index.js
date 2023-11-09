@@ -46,18 +46,13 @@ function hideLoadingScreen() {
 
 function pageSetup() {
 
-   // populate map with dynamic data
-   // worldmapInit()
-   // audio player
-
-
-
    // get last tracks
    fetch('wp-json/africangrooves/v1/tracks/recent')
       .then(e => e.json())
       .then(e => player.update(e))
 
    let player = document.querySelector('ag-audio-player')
+   let modal = document.querySelector('ag-blog-modal')
 
 
    player.querySelector('#playlist-toggle-button').onclick = e => player.classList.toggle("is-open")
@@ -86,8 +81,7 @@ function pageSetup() {
       }
    })
 
-   // post display action
-   let modal = document.querySelector('ag-blog-modal')
+   // song display action
    player.controls.buttons.plus.onclick = e => {
       let id = player.currentTrack.dataset.postId
 
@@ -117,42 +111,61 @@ function pageSetup() {
          })
    }
 
-   // constent display
-   window.addEventListener('click', e => {
+   // search form
+   let searchBar = document.querySelector('#navbar-search')
+   searchBar.querySelector('button').addEventListener('click', e => {
+      e.preventDefault()
 
-      let link = e.target.href ?? null
+      let input = searchBar.querySelector('input')
+      let s = input.value
+      input.value = ''
 
-      if (link && link.includes(document.location)) { // lien interne au site
-         e.preventDefault()
-
-         modal.setContent('')
-         modal.classList.add('is-loading');
-
-         fetch(link, {
-            mode: 'cors',
-            credentials: 'include'
+      fetch('wp-json/africangrooves/v1/search/', {
+         method: 'post',
+         headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+         },
+         body: JSON.stringify({
+            search: s
          })
-            .then(e => e.text())
-            .then(e => {
-               let regex = /<main>.*<\/main>/s
-               let res = e.match(regex)[0] ?? null
-               if (res) {
-                  modal.setContent(res)
-                  modal.classList.add('is-visible')
-               }
-               modal.classList.remove('is-loading')
-            })
-            .catch(e => modal.classList.remove('is-visible'))
-            .finally(e => modal.classList.remove('is-loading'))
+      }).then(e => e.json())
+         .then(e => {
+            player.update(e)
+            // TODO gerer pas de résultats
+         })
+      })
 
+      // internal links open in modal
+      window.addEventListener('click', e => {
 
-         console.log(link)
+         let link = e.target.href ?? null
+
+         if (link && link.includes(document.location)) { // lien interne au site
+            e.preventDefault()
+
+            modal.setContent('')
+            modal.classList.add('is-loading');
+
+            fetch(link)
+               .then(e => e.text())
+               .then(e => {
+                  let regex = /<main>.*<\/main>/s
+                  let res = e.match(regex)[0] ?? null
+                  if (res) {
+                     modal.setContent(res)
+                     modal.classList.add('is-visible')
+                  }
+                  modal.classList.remove('is-loading')
+               })
+               .catch(e => modal.classList.remove('is-visible'))
+               .finally(e => modal.classList.remove('is-loading'))
+         }
+      })
+
+      // loader
+      loaded = true;
+      if (elapsed) {
+         hideLoadingScreen();
       }
-   })
-
-   // loader
-   loaded = true;
-   if (elapsed) {
-      hideLoadingScreen();
    }
-}

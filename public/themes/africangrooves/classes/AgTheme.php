@@ -30,14 +30,6 @@ class AgTheme
 
         AgApi::init();
 
-        // AJAX handler
-        add_action('wp_ajax_tracks', 'get_ajax_tracks');
-        add_action('wp_ajax_nopriv_tracks', 'get_ajax_tracks');
-        add_action('wp_ajax_post', 'get_ajax_post');
-        add_action('wp_ajax_nopriv_post', 'get_ajax_post');
-        add_action('wp_ajax_content', 'get_ajax_content');
-        add_action('wp_ajax_nopriv_content', 'get_ajax_content');
-
         add_action('init', function () {
             SongPostType::register();
             AgTaxonomy::RegisterAll();
@@ -57,6 +49,10 @@ class AgTheme
             register_nav_menu('ag_header_menu', 'Menu de l\'en-tête');
             remove_theme_support('widgets-block-editor');
         });
+
+        //disable block editor
+
+        add_filter( 'use_block_editor_for_post', '__return_false' );
 
         // Wordplate
 
