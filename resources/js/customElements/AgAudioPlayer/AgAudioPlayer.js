@@ -199,6 +199,7 @@ export class AgAudioPlayer extends HTMLElement {
     add(trackData) {
         let track = AgTrack.get(trackData)
         track.classList.add('track--future')
+        track.addEventListener('click',e=>this.dispatchEvent(new CustomEvent('track-click',{detail:{post_id:track.dataset.postId}})))
         this.playlist.appendChild(track)
     }
 

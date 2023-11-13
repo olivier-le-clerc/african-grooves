@@ -36,7 +36,7 @@ class AgApi
                 },
             ]);
 
-            //  Url  //////////////////////////////////////////////////////////////////
+            //  search  //////////////////////////////////////////////////////////////////
 
             register_rest_route('africangrooves/v1', '/search/', [
                 'methods' => 'POST',
@@ -44,6 +44,22 @@ class AgApi
                     $s = $req->get_json_params()['search'];
                     if ($s) {
                         return get_tracks($s);
+                    }
+                },
+            ]);
+
+
+            //  url  //////////////////////////////////////////////////////////////////
+
+            register_rest_route('africangrooves/v1', '/post/', [
+                'methods' => 'POST',
+                'callback' => function (WP_REST_Request $req) {
+                    $action = $req->get_json_params()['action'];
+                    switch ($action) {
+                        case 'fetch_content':
+                            if ($url = $req->get_json_params()['url'])
+                                return ag_fetch_content($url);
+                            break;
                     }
                 },
             ]);

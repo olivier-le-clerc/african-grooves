@@ -1,3 +1,14 @@
+/*  TODO  //////////////////////////////////////////////////////////////////
+
+clic sur carte ferme modal
+ouverture modal ferme menus
+polices ne s affichent pas dans chrome
+ordre affichage éléments loading
+modifier player de post dans modal
+
+
+//    /////////////////////////////////////////////////////////////////*/
+
 import '../css/index.scss';
 
 import { PanZoom } from "./panzoom.js";
@@ -13,12 +24,9 @@ customElements.define('ag-audio-player', AgAudioPlayer)
 import { AgBlogModal } from './customElements/AgBlogModal';
 customElements.define('ag-blog-modal', AgBlogModal)
 
-// import { AgApi } from './AgApi';
-// AgApi.test()
-
 ///// LOADER SCREEN
 
-const MIN_TIME_MS = 2;
+const MIN_TIME_MS = 2000;
 
 var elapsed = false;
 var loaded = false;
@@ -73,35 +81,29 @@ function pageSetup() {
    player.controls.buttons.plus.onclick = e => {
       let id = player.currentTrack.dataset.postId
 
-      modal.fetch(`wp-json/africangrooves/v1/song/${id}`, {}, e => {
-         return e.replace(/<audio.*audio>.*$/s, 'test')
-      })
+      // modal.fetch(`wp-json/africangrooves/v1/song/${id}`, {}, e => {
+      //    return e.replace(/<audio.*audio>/s, 'test')
+      // })
 
-      // modal.classList.add('is-loading')
-      // fetch(`wp-json/africangrooves/v1/song/${id}`)
-      //    .then(e => e.json())
-      //    .then(e => modal.setContent(e))
-      //    .then(e => {
-
-      //       // remplace le lecteur
-      //       let audio = modal.querySelector('audio');
-      //       if (audio !== null) {
-      //          // audio player replacement
-      //          let button = document.createElement('button');
-      //          button.classList.add('player-button', 'button--big', 'button-play', 'button--contrast');
-      //          if (player.isPlaying) {
-      //             button.innerHTML = '<i class="fa-solid fa-pause"></i>';
-      //          } else {
-      //             button.innerHTML = '<i class="fa-solid fa-play"></i>';
-      //          }
-      //          button.addEventListener('click', player.toggle);
-      //          audio.replaceWith(button);
-      //       }
-
-      //       modal.classList.remove('is-loading')
-      //       modal.classList.add('is-visible')
-      //    })
+      modal.displayLoader()
+      fetch(`wp-json/africangrooves/v1/song/${id}`)
+         .then(e => e.json())
+         .then(e => {
+            modal.displayContent(e)
+         })
    }
+
+   // track click action
+   player.addEventListener('track-click', e => {
+      let id = e.detail.post_id
+
+      modal.displayLoader()
+      fetch(`wp-json/africangrooves/v1/song/${id}`)
+         .then(e => e.json())
+         .then(e => {
+            modal.displayContent(e)
+         })
+   })
 
    // search form
    let searchBar = document.querySelector('#navbar-search')
@@ -109,25 +111,10 @@ function pageSetup() {
       e.preventDefault()
 
       let input = searchBar.querySelector('input')
-      let s = input.value
+      let s = input.value == '' ? 'recent' : input.value
       input.value = ''
 
-      player.fetch('wp-json/africangrooves/v1/search/',{search:s})
-
-      // fetch('wp-json/africangrooves/v1/search/', {
-      //    method: 'post',
-      //    headers: {
-      //       'Accept': 'application/json',
-      //       'Content-Type': 'application/json'
-      //    },
-      //    body: JSON.stringify({
-      //       search: s
-      //    })
-      // }).then(e => e.json())
-      //    .then(e => {
-      //       player.update(e)
-      //       // TODO gerer pas de résultats
-      //    })
+      player.fetch('wp-json/africangrooves/v1/search/', { search: s })
    })
 
    // internal links open in modal
@@ -135,13 +122,15 @@ function pageSetup() {
 
       let link = e.target.href ?? null
 
-      if (link && link.includes(document.location) && !link.includes('wp-admin')) { // lien interne au site
+      if (link && link.includes(document.location.href) && !link.includes('wp-admin')) { // lien interne au site
          e.preventDefault()
 
-         modal.fetch(link, {}, e => {
-            // get what's between main tags
-            return e.match(/<main>.*<\/main>/s)[0] ?? null
-         }, false)
+         link = link.replace(document.location.href, '')
+         link = link.replace('index.php', '')
+         modal.displayLoader()
+         agFetch({ action: 'fetch_content', url: link })
+            .then(e => modal.displayContent(e))
+            .catch(e => modal.clear())
       }
    })
 
@@ -150,4 +139,17 @@ function pageSetup() {
    if (elapsed) {
       hideLoadingScreen();
    }
+}
+
+async function agFetch(args) {
+   let res = await fetch('wp-json/africangrooves/v1/post/', {
+      method: "post",
+      mode: "cors",
+      credentials: "same-origin",
+      headers: {
+         "Content-Type": "application/json"
+      },
+      body: JSON.stringify(args)
+   })
+   return res.json()
 }

@@ -1,6 +1,6 @@
 <?php // Time-stamp: <2023-02-07 22:03:44 olivier>
-// TODO get_page_by_title deprecated
 ?>
+
 <!doctype html>
 <html lang="fr">
 

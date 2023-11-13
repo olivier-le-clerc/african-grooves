@@ -211,3 +211,77 @@ function get_tracks(string $search = 'recent', string $tax = '')
 	}
 	return $data;
 }
+
+function ag_tag_cloud()
+{
+	$tags = get_terms([
+		'taxonomy' => [ArtistTaxonomy::SLUG, MusicalGenreTaxonomy::SLUG, MusicLabelTaxonomy::SLUG, ArtistTaxonomy::SLUG, RegionTaxonomy::SLUG],
+		'orderby' => 'count',
+		'order' => 'DESC',
+		'number' => 45,
+	]);
+	return wp_generate_tag_cloud($tags, [
+		'orderby' => 'name',
+		'order' => 'DESC'
+	]);
+}
+
+function ag_fetch_content($url)
+{
+	$res = '';
+
+	if ($url) {
+		$url = trim($url, '/');
+		$url = explode('/', $url);
+		if (sizeof($url) == 1) {
+			$param = $url[0];
+			if ($param == SongPostType::SLUG) {
+				$args = [
+					'post_type' => SongPostType::SLUG
+				];
+			} else { //page
+				$args = [
+					"pagename" => $param,
+				];
+			}
+		} elseif (sizeof($url) == 2) {
+			if ($url[0] == 'category') {
+				$args['category_name'] = $url[1];
+			} elseif ($url[0] == 'tag') {
+				$args = [
+					'tag' => $url[1],
+					'post_type' => SongPostType::SLUG,
+				];
+			} else {
+				$args = [
+					'tax_query' => [[
+						'taxonomy' => $url[0],
+						'field' => 'slug',
+						'terms' => $url[1],
+					]],
+					'post_type' => SongPostType::SLUG,
+				];
+			}
+		}
+
+		$req = new WP_Query($args);
+
+		if ($req->have_posts()) {
+			while ($req->have_posts()) {
+				$req->the_post();
+
+				ob_start();
+				get_template_part('parts/article');
+				$res .= ob_get_clean();
+			}
+		}
+	}
+
+	if(!$res){
+		ob_start();
+		get_template_part('parts/no-result');
+		$res = ob_get_clean();
+	}
+
+	return $res;
+}
