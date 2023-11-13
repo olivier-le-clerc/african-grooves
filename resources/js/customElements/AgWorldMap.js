@@ -14,5 +14,31 @@ export class AgWorldMap extends HTMLElement {
                 el.dataset[att] = data.states[key][att];
             }
         })
+
+        //  Tooltip on Hover  //////////////////////////////////////////////////////////////////
+
+        let tooltip = document.createElement('div');
+        tooltip.classList.add('tooltip')
+        tooltip.innerHTML = 'test'
+
+        this.onmousemove = e => {
+            if (e.target.dataset.count > 0) {
+                let name = e.target.dataset.name
+                if (tooltip.innerHTML !== name) {
+                    this.appendChild(tooltip)
+                    tooltip.innerHTML = name
+                }
+                tooltip.style.top = e.clientY + 10 + 'px'
+                tooltip.style.left = e.clientX + 10 + 'px'
+            }
+        }
+
+        this.onmouseout = e => {
+            tooltip.innerHTML=''
+            if (this.querySelector('.tooltip')) {
+                this.removeChild(tooltip)
+            }
+        }
+
     }
 }

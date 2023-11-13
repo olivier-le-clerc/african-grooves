@@ -1,4 +1,4 @@
-import vinylUrl from '/img/vinyl_white.svg'
+import vinylUrl from '/img/vinyl.svg'
 
 export class AgBlogModal extends HTMLElement {
 
@@ -21,13 +21,14 @@ export class AgBlogModal extends HTMLElement {
         this.content = ''
         this.innerHTML = this.template
         this.querySelector('button').onclick = e => {
-            this.classList.remove('is-visible')
+            this.clear()
         }
     }
 
     displayLoader() {
         this.classList.remove('is-visible')
         this.classList.add('is-loading')
+        this.dispatchEvent(new CustomEvent('blog-modal-opened'))
     }
 
     displayContent(e) {
@@ -35,34 +36,32 @@ export class AgBlogModal extends HTMLElement {
         let slot = this.querySelector('.slot')
         this.classList.add('is-visible')
         this.classList.remove('is-loading')
-        slot.scrollTo(0,0)
+        slot.scrollTo(0, 0)
+    }
+
+    get isVisible(){
+        return this.classList.contains('is-visible') || this.classList.contains('is-loading')
     }
 
     clear() {
         this.classList.remove('is-visible', 'is-loading')
         this.setContent('')
+        this.dispatchEvent(new CustomEvent('blog-modal-closed'))
     }
 
     setContent(val) {
         this.querySelector('.slot').innerHTML = val
     }
 
-    // fetch(url, args = {}, callback = e => e, json = true) {
-    //     this.displayLoader()
+    fetch(url, callback = e => e) {
+        this.displayLoader()
+        fetch(url)
+            .then(e => e.json())
+            .then(e => {
+                e = callback(e)
+                this.displayContent(e)
+            })
 
-
-    //     fetch(url, args)
-    //         .then(e => json ? e.json() : e.text())
-    //         .then(e => {
-    //             e = callback(e)
-    //             if (e) {
-    //                 this.setContent(e)
-    //                 this.classList.add('is-visible')
-    //             }
-    //         })
-    //         .catch(e => this.classList.remove('is-visible'))
-    //         .finally(e => this.classList.remove('is-loading'))
-
-    // }
+    }
 
 }

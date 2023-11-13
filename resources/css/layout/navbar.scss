@@ -25,6 +25,8 @@
     background-color: var(--primary-color);
     width: 100%;
     flex-wrap: wrap;
+    z-index: 1000;
+
  }
  
  #navbar li {

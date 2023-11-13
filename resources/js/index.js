@@ -1,19 +1,17 @@
 /*  TODO  //////////////////////////////////////////////////////////////////
 
-clic sur carte ferme modal
-ouverture modal ferme menus
 polices ne s affichent pas dans chrome
-ordre affichage éléments loading
 modifier player de post dans modal
 
+//  non bloquants  //////////////////////////////////////////////////////////////////
+
+reprendre css article
 
 //    /////////////////////////////////////////////////////////////////*/
 
 import '../css/index.scss';
 
 import { PanZoom } from "./panzoom.js";
-
-// import { worldmapInit } from './AgWorldmap/AgWorldMap.js';
 
 import { AgWorldMap } from './customElements/AgWorldMap'
 customElements.define('ag-worldmap', AgWorldMap)
@@ -52,6 +50,7 @@ function hideLoadingScreen() {
 
 ///// LOADING ROUTINE
 
+
 function pageSetup() {
 
    let player = document.querySelector('ag-audio-player')
@@ -62,14 +61,17 @@ function pageSetup() {
       .then(e => e.json())
       .then(e => player.update(e))
 
-   player.querySelector('#playlist-toggle-button').onclick = e => player.classList.toggle("is-open")
+   // toggle playlist drawer
+   player.querySelector('#playlist-toggle-button').onclick = e => {
+      closeAllDrawers()
+      player.classList.toggle("is-open")
+   }
 
    // panzoom init
-
    let svg = document.querySelector("ag-worldmap svg")
    new PanZoom(svg).init();
 
-   // country click action
+   // country click updates player action
    svg.addEventListener("click", e => {
       if (e.target.localName == "path" && e.target.dataset.count > 0) {
          let country = e.target.dataset.name
@@ -77,32 +79,31 @@ function pageSetup() {
       }
    })
 
-   // song display action
+   // song infos modal display
    player.controls.buttons.plus.onclick = e => {
       let id = player.currentTrack.dataset.postId
-
-      // modal.fetch(`wp-json/africangrooves/v1/song/${id}`, {}, e => {
-      //    return e.replace(/<audio.*audio>/s, 'test')
-      // })
-
-      modal.displayLoader()
-      fetch(`wp-json/africangrooves/v1/song/${id}`)
-         .then(e => e.json())
-         .then(e => {
-            modal.displayContent(e)
-         })
+      modal.fetch(`wp-json/africangrooves/v1/song/${id}`)
    }
+
+   // disable map controls and closes menus when modal opened
+   modal.addEventListener('blog-modal-opened', e => {
+      document.querySelector('#map-ui').classList.add('disableMap')
+      player.classList.remove('is-open')
+      closeAllDrawers()
+   })
+
+   modal.addEventListener('blog-modal-closed', e => document.querySelector('#map-ui').classList.remove('disableMap'))
+
+   // click on map closes modal when opened
+   document.querySelector('#map-ui').addEventListener('click', e => {
+      if (e.target.id == 'map-ui')
+         modal.clear()
+   })
 
    // track click action
    player.addEventListener('track-click', e => {
       let id = e.detail.post_id
-
-      modal.displayLoader()
-      fetch(`wp-json/africangrooves/v1/song/${id}`)
-         .then(e => e.json())
-         .then(e => {
-            modal.displayContent(e)
-         })
+      modal.fetch(`wp-json/africangrooves/v1/song/${id}`)
    })
 
    // search form
@@ -133,12 +134,6 @@ function pageSetup() {
             .catch(e => modal.clear())
       }
    })
-
-   // loader
-   loaded = true;
-   if (elapsed) {
-      hideLoadingScreen();
-   }
 }
 
 async function agFetch(args) {
@@ -152,4 +147,8 @@ async function agFetch(args) {
       body: JSON.stringify(args)
    })
    return res.json()
+}
+
+function closeAllDrawers() {
+   document.querySelectorAll('input[type=checkbox]').forEach(e => e.checked = false)
 }

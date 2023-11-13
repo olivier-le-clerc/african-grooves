@@ -21,6 +21,7 @@ svg#map {
     stroke-width: .5px;
     transition: all 0.2s;
     fill: var(--map);
+    position: relative;
 }
 
 #map path:not(#map path[data-count="0"]):hover {
@@ -35,6 +36,16 @@ svg#map {
 #map path[data-count="0"],#map path[data-count=""]{
     fill:var(--map);
 }
+
+.tooltip{
+    border-radius: 0 0.8rem 0.8rem 0.8rem;
+    background-color: rgba(0,0,0,0.8);
+    color:white;
+    position:absolute;
+    padding: 1rem;
+    z-index: 1000;
+}
+
 /* #map path[data-count="1"]{
     fill:#e79275;
 }

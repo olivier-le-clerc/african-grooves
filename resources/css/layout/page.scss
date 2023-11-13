@@ -4,8 +4,17 @@ $sidebarWidth: 300px;
     pointer-events: none;
 }
 
+.map-ui_body{
+    pointer-events: none;
+    z-index: 0;
+}
+
+.map-ui.disableMap{
+    pointer-events: auto;
+}
+
 .map-ui_body * {
-    pointer-events: visible;
+    pointer-events: auto;
 }
 
 @media screen and (orientation:landscape) {
