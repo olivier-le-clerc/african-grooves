@@ -238,4 +238,8 @@ class SongPostType
 
         return $res;
     }
+
+    public static function removeAudioPlayer($content){
+        
+    }
 }

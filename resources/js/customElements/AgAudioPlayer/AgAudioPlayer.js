@@ -11,6 +11,7 @@ export class AgAudioPlayer extends HTMLElement {
 
         this.data = {}
         // this.current = -1
+        this.isPlaying = false
 
         this.settings = {
             repeat: false,
@@ -21,7 +22,7 @@ export class AgAudioPlayer extends HTMLElement {
 
         this.controls = new AudioControls()
         this.controls.buttons.play.onclick = e => this.toggle()
-        this.controls.buttons.next.addEventListener('click', (e) => this.next(this.isPlaying))
+        this.controls.buttons.next.addEventListener('click', (e) => this.next())
 
         this.controls.buttons.repeat.addEventListener('click', e => {
             this.controls.buttons.repeat.classList.toggle('button--is-active')
@@ -52,8 +53,7 @@ export class AgAudioPlayer extends HTMLElement {
         });
 
         this.audio.addEventListener('ended', e => {
-            this.next(this.isPlaying);
-            audio.play();
+            this.next();
         })
     }
 
@@ -83,7 +83,7 @@ export class AgAudioPlayer extends HTMLElement {
         return this.querySelector('#current-song')
     }
 
-    get isPlaying() { return !this.audio.paused && this.audio.duration > 0; }
+    // get isPlaying() { return !this.audio.paused && this.audio.duration > 0; }
 
     get title() { return this.querySelector('#audio-player-main-title') }
 
@@ -92,7 +92,12 @@ export class AgAudioPlayer extends HTMLElement {
     get playlist() { return this.querySelector('#playlist') }
 
     toggle() {
-        this.isPlaying ? this.audio.pause() : this.audio.play()
+        this.isPlaying = !this.isPlaying
+        this.isPlaying ? this.audio.play() : this.audio.pause()
+    }
+
+    contains(href) {
+
     }
 
     get nextTrack() {
@@ -110,16 +115,16 @@ export class AgAudioPlayer extends HTMLElement {
         return res;
     }
 
-    next(playNext = false) {
+    next(nextTrack = null) {
 
         // this.current++
         this.querySelector('.track--current')?.classList.remove('track--current')
 
-        let next = this.nextTrack
+        let next = nextTrack ? nextTrack : this.nextTrack
 
         if (next !== null) {
 
-            next.classList.remove('track--future');
+            next.classList.remove('track--future', 'track--previous');
 
             this.renderCurrent(next)
 
@@ -132,17 +137,26 @@ export class AgAudioPlayer extends HTMLElement {
                 })
             }
 
-            if (playNext == true) this.audio.play()
+            if (this.isPlaying) this.audio.play()
 
         } else {
 
-            // this.current = -1
             this.querySelectorAll('.track--previous').forEach(e => {
                 e.classList.remove('track--previous')
                 e.classList.add('track--future')
             })
-
-            this.next(this.settings.repeat)
+            if (this.settings.repeat) {
+                this.isPlaying = this.isPlaying && this.settings.repeat
+            } else {
+                // TODO c'est sale mais ça marche
+                let buttons = document.querySelectorAll('.button-play i');
+                buttons.forEach(i => {
+                    i.classList.remove('fa-pause');
+                    i.classList.add('fa-play');
+                });
+                this.isPlaying = false
+            }
+            this.next()
         }
 
     }
@@ -176,31 +190,33 @@ export class AgAudioPlayer extends HTMLElement {
         }
     }
 
-    fetch(url, args = {}) {
-        fetch(url, {
-            method: 'post',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(args)
-        })
-            .then(e => e.json())
-            .then(e => this.update(e))
-    }
-
     clear() {
         this.playlist.innerHTML = ''
-        this.currentTrack.innerHTML=''
+        this.currentTrack.innerHTML = ''
         this.dataset["current"] = 0
         this.dataset["playing"] = false
     }
 
-    add(trackData) {
+    unshift(trackData) {
         let track = AgTrack.get(trackData)
         track.classList.add('track--future')
-        track.addEventListener('click',e=>this.dispatchEvent(new CustomEvent('track-click',{detail:{post_id:track.dataset.postId}})))
+        track.addEventListener('click', e => this.dispatchEvent(new CustomEvent('track-click', { detail: { post_id: track.dataset.postId } })))
         this.playlist.appendChild(track)
+    }
+
+    add(trackData, append = true) {
+        let track = AgTrack.get(trackData)
+        track.classList.add('track--future')
+        track.addEventListener('click', e => this.dispatchEvent(new CustomEvent('track-click', { detail: { post_id: track.dataset.postId } })))
+
+        let nextTrack = this.playlist.querySelector('.track--future')
+
+        if (append || !nextTrack) {
+            this.playlist.appendChild(track)
+        } else {
+            nextTrack.before(track)
+            this.next()
+        }
     }
 
 }

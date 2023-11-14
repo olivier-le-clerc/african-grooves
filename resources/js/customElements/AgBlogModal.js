@@ -31,15 +31,16 @@ export class AgBlogModal extends HTMLElement {
         this.dispatchEvent(new CustomEvent('blog-modal-opened'))
     }
 
-    displayContent(e) {
-        this.setContent(e)
+    displayContent(str, callback = e => e) {
+        let content = callback(str)
+        this.setContent(content)
         let slot = this.querySelector('.slot')
         this.classList.add('is-visible')
         this.classList.remove('is-loading')
         slot.scrollTo(0, 0)
     }
 
-    get isVisible(){
+    get isVisible() {
         return this.classList.contains('is-visible') || this.classList.contains('is-loading')
     }
 
@@ -52,16 +53,4 @@ export class AgBlogModal extends HTMLElement {
     setContent(val) {
         this.querySelector('.slot').innerHTML = val
     }
-
-    fetch(url, callback = e => e) {
-        this.displayLoader()
-        fetch(url)
-            .then(e => e.json())
-            .then(e => {
-                e = callback(e)
-                this.displayContent(e)
-            })
-
-    }
-
 }

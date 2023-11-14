@@ -20,6 +20,21 @@
     height: 50px;
 }
 
+.blog-button{
+    margin: 0.5rem;;
+    padding:1rem;
+    background-color: var(--primary-color);
+    color:var(--secondary-color);
+    font-size: 20px;
+    border-radius: 1.5rem;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.blog-button:hover{
+    opacity: 0.8;
+}
+
 .player-button .fa-pause {
     animation: zoom alternate 0.5s infinite ease;
 }

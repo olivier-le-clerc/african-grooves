@@ -194,22 +194,29 @@ function get_tracks(string $search = 'recent', string $tax = '')
 	}
 
 	// get associated tracks
-	$track_ids = array_map(fn ($e) => get_post_meta($e, 'featured-audio', true), $posts);
+	// $track_ids = array_map(fn ($e) => get_post_meta($e, 'featured-audio', true), $posts);
 
-	foreach ($track_ids as $id) {
-		$track = get_post($id);
-		$image_id = get_post_thumbnail_id($id) ?? 0;
-		$row = [];
-
-		$row['post_id'] = $track->post_parent;
-		$row['mp3_path'] = wp_get_attachment_url($track->ID);
-		$row['image_path'] = wp_get_attachment_image_url($image_id);
-		$row['song_title'] = $track->post_title;
-		$row['artist'] = get_post_meta($track->ID, '_wp_attachment_metadata', true)['artist'];
-
-		$data['content'][] = $row;
+	foreach ($posts as $id) {
+		$track = get_featured_audio($id);
+		$data['content'][] = get_track_data($track);
 	}
 	return $data;
+}
+
+function get_featured_audio($song_id){
+	$track_id = get_post_meta($song_id, 'featured-audio', true);
+	return get_post($track_id);
+}
+
+function get_track_data(WP_Post $track){
+	$res = [];
+	$image_id = get_post_thumbnail_id($track->ID) ?? 0;
+	$res['post_id'] = $track->post_parent;
+	$res['mp3_path'] = wp_get_attachment_url($track->ID);
+	$res['image_path'] = wp_get_attachment_image_url($image_id);
+	$res['song_title'] = $track->post_title;
+	$res['artist'] = get_post_meta($track->ID, '_wp_attachment_metadata', true)['artist'];
+	return $res;
 }
 
 function ag_tag_cloud()
@@ -226,62 +233,7 @@ function ag_tag_cloud()
 	]);
 }
 
-function ag_fetch_content($url)
-{
-	$res = '';
-
-	if ($url) {
-		$url = trim($url, '/');
-		$url = explode('/', $url);
-		if (sizeof($url) == 1) {
-			$param = $url[0];
-			if ($param == SongPostType::SLUG) {
-				$args = [
-					'post_type' => SongPostType::SLUG
-				];
-			} else { //page
-				$args = [
-					"pagename" => $param,
-				];
-			}
-		} elseif (sizeof($url) == 2) {
-			if ($url[0] == 'category') {
-				$args['category_name'] = $url[1];
-			} elseif ($url[0] == 'tag') {
-				$args = [
-					'tag' => $url[1],
-					'post_type' => SongPostType::SLUG,
-				];
-			} else {
-				$args = [
-					'tax_query' => [[
-						'taxonomy' => $url[0],
-						'field' => 'slug',
-						'terms' => $url[1],
-					]],
-					'post_type' => SongPostType::SLUG,
-				];
-			}
-		}
-
-		$req = new WP_Query($args);
-
-		if ($req->have_posts()) {
-			while ($req->have_posts()) {
-				$req->the_post();
-
-				ob_start();
-				get_template_part('parts/article');
-				$res .= ob_get_clean();
-			}
-		}
-	}
-
-	if(!$res){
-		ob_start();
-		get_template_part('parts/no-result');
-		$res = ob_get_clean();
-	}
-
-	return $res;
+function replaceAudioPlayer($str){
+	$replacement = '<button class="blog-button blog-button-play" data-post_id="' . get_the_ID() . '">Play Now</button>';
+	return preg_replace('/<audio.*audio>/mU', $replacement, $str, 1);
 }

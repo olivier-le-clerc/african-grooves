@@ -25,7 +25,7 @@ svg#map {
 }
 
 #map path:not(#map path[data-count="0"]):hover {
-    filter:brightness(80%);
+    // filter:brightness(80%);
     cursor: pointer;
 }
 
