@@ -12,14 +12,17 @@ export class AgBlogModal extends HTMLElement {
             </div>
                 <button id="post-close-button" class="icon-wrap modal-close"><i class="fa-solid fa-x"></i></button>
                 <div class="slot"></div>
-
     `
     }
 
     constructor() {
         super()
         this.content = ''
+
+        let content = this.innerHTML
+
         this.innerHTML = this.template
+        this.querySelector(".slot").innerHTML = content
         this.querySelector('button').onclick = e => {
             this.clear()
         }

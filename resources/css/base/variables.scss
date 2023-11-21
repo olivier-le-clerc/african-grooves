@@ -1,14 +1,17 @@
 :root {
-    --primary-color: #303030;
-    --secondary-color: #d7d7d7;
+    // --primary-color: #303030;
+    --primary-color:rgba(0,0,0,0.8);
+    // --secondary-color: #d7d7d7;
+    --secondary-color:rgba(255,255,255,0.8);
     --background-color: #d7d7d7;
-    --link-color: red;
+    --link-color: #4c9905;
     --text-color: #303030;
-    --text-font: 'Rubik';
     --title-font: 'Abel';
 
     /* map */
-    --background: rgba(65, 58, 83);
-    --map: rgb(238, 222, 177);
-    --emphasis: rgb(231, 113, 83);
+    --base-color: #a2cc7a;
+    --empty-country-color: rgba(158, 158, 153, 0.2);
+    --bg-color: rgb(231, 231, 224);
+    --bg-dark: rgb(85, 64, 64);
+
 }

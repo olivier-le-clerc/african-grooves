@@ -4,13 +4,37 @@ customElements.define('ag-track', AgTrack)
 import { AudioControls } from "./AudioControls";
 customElements.define('audio-controls', AudioControls)
 
+import { AgCurrentTrack } from "./AgCurrentTrack";
+customElements.define('current-track', AgCurrentTrack)
+
 export class AgAudioPlayer extends HTMLElement {
+
+    get template() {
+        return `
+            <!-- header content always visible -->
+            <header>
+                <div id="title" class="top-bar">
+                    <h2 id="audio-player-main-title" class="title">Recent Tracks</h2>
+                    <button id="playlist-toggle-button">
+                        <i class="fa-solid fa-chevron-up"></i>
+                    </button>
+                </div>
+                <current-track></current-track>
+            </header>
+
+            <audio src=""></audio>
+
+            <!-- drawer content is hidden on mobiles -->
+            <div class="body">
+                <div id="playlist" class="scrollable"></div>
+            </div>
+            `
+    }
 
     constructor() {
         super()
 
-        this.data = {}
-        // this.current = -1
+        this.playedTracks = []
         this.isPlaying = false
 
         this.settings = {
@@ -20,19 +44,30 @@ export class AgAudioPlayer extends HTMLElement {
 
         this.innerHTML = this.template
 
-        this.controls = new AudioControls()
-        this.controls.buttons.play.onclick = e => this.toggle()
-        this.controls.buttons.next.addEventListener('click', (e) => this.next())
-
-        this.controls.buttons.repeat.addEventListener('click', e => {
-            this.controls.buttons.repeat.classList.toggle('button--is-active')
-            this.settings.repeat = !this.settings.repeat
+        this.currentTrack.addEventListener('player-controls', e => {
+            switch (e.detail.action) {
+                case "play":
+                    this.toggle()
+                    break
+                case "next":
+                    this.next()
+                    break
+                case "repeat":
+                    this.currentTrack.buttons.repeat.classList.toggle('button--is-active')
+                    this.settings.repeat = !this.settings.repeat
+                    break
+                case "shuffle":
+                    this.currentTrack.buttons.shuffle.classList.toggle('button--is-active')
+                    this.settings.shuffle = !this.settings.shuffle
+                    break
+                case "back":
+                    this.back()
+                    break
+                case "progress-bar":
+                    this.audio.currentTime = this.audio.duration * e.detail.progress
+                    break
+            }
         })
-
-        this.controls.buttons.shuffle.onclick = e => {
-            this.controls.buttons.shuffle.classList.toggle('button--is-active')
-            this.settings.shuffle = !this.settings.shuffle
-        }
 
         this.audio.addEventListener('playing', e => {
             let buttons = document.querySelectorAll('.button-play i');
@@ -57,30 +92,10 @@ export class AgAudioPlayer extends HTMLElement {
         })
     }
 
-    get template() {
-        return `
-            <!-- header content always visible -->
-            <header>
-                <div id="title" class="top-bar">
-                    <h2 id="audio-player-main-title" class="title">Recent Tracks</h2>
-                    <button id="playlist-toggle-button">
-                        <i class="fa-solid fa-chevron-up"></i>
-                    </button>
-                </div>
-                <div id="current-song" class="track" data-id="" data-src=""></div>
-            </header>
 
-            <audio src=""></audio>
-
-            <!-- drawer content is hidden on mobiles -->
-            <div class="body">
-                <div id="playlist" class="scrollable"></div>
-            </div>
-            `
-    }
 
     get currentTrack() {
-        return this.querySelector('#current-song')
+        return this.querySelector('current-track')
     }
 
     // get isPlaying() { return !this.audio.paused && this.audio.duration > 0; }
@@ -93,7 +108,27 @@ export class AgAudioPlayer extends HTMLElement {
 
     toggle() {
         this.isPlaying = !this.isPlaying
-        this.isPlaying ? this.audio.play() : this.audio.pause()
+        this.isPlaying ? this.play() : this.pause()
+    }
+
+    play() {
+        this.audio.play()
+        this.isPlaying = true
+        this.currentTrack.buttons.play.classList.add('button--is-active')
+
+        this.intervalId = setInterval(e => {
+            let percent = 100 * this.audio.currentTime / this.audio.duration
+            this.currentTrack.progress = percent
+        }, 1000)
+    }
+
+    pause() {
+        this.audio.pause()
+        this.isPlaying = false
+        this.currentTrack.buttons.play.classList.remove('button--is-active')
+
+        clearInterval(this.intervalId)
+
     }
 
     contains(href) {
@@ -110,17 +145,26 @@ export class AgAudioPlayer extends HTMLElement {
                 res = tracks.item(randomIndex)
             }
         } else {
-            res = this.querySelector('.track--future')
+            let current = this.querySelector('.track--current')
+            if (current) {
+                res = this.querySelector('.track--current ~ .track--future')
+            } else {
+                res = this.querySelector('.track--future')
+            }
         }
         return res;
     }
 
     next(nextTrack = null) {
 
-        // this.current++
-        this.querySelector('.track--current')?.classList.remove('track--current')
-
         let next = nextTrack ? nextTrack : this.nextTrack
+
+        let current = this.querySelector('.track--current')
+
+        if (current) {
+            this.playedTracks.push(current.dataset.postId)
+            current.classList.remove('track--current')
+        }
 
         if (next !== null) {
 
@@ -137,14 +181,15 @@ export class AgAudioPlayer extends HTMLElement {
                 })
             }
 
-            if (this.isPlaying) this.audio.play()
+            if (this.isPlaying) this.play()
 
         } else {
-
+            // Tous les morceaux ont été joués, réinitialise la playlist
             this.querySelectorAll('.track--previous').forEach(e => {
                 e.classList.remove('track--previous')
                 e.classList.add('track--future')
             })
+            this.playedTracks = []
             if (this.settings.repeat) {
                 this.isPlaying = this.isPlaying && this.settings.repeat
             } else {
@@ -161,13 +206,30 @@ export class AgAudioPlayer extends HTMLElement {
 
     }
 
+    back() {
+        if (this.playedTracks.length == 0) { return }
+        let id = this.playedTracks.pop()
+
+        let track = this.playlist.querySelector(`ag-track[data-post-id="${id}"]`)
+        let current = this.querySelector('.track--current')
+
+        if (current) {
+            current.classList.remove('track--current')
+            current.classList.add('track--future')
+        }
+
+        if (track) {
+            track.classList.remove('track--previous')
+            this.renderCurrent(track)
+            track.classList.add('track--current')
+        }
+
+        if (this.isPlaying) this.play()
+    }
+
     renderCurrent(track) {
-        let firstTrack = track.cloneNode(true)
-        // first track
-        firstTrack.id = "current-song"
-        firstTrack.appendChild(this.controls)
-        this.audio.src = firstTrack.dataset.src;
-        this.querySelector("#current-song").replaceWith(firstTrack)
+        this.audio.src = track.dataset.src
+        this.currentTrack.update(track.data)
     }
 
     update(playlistData) {
@@ -183,7 +245,7 @@ export class AgAudioPlayer extends HTMLElement {
 
             this.next()
 
-            if (wasPlaying) this.audio.play()
+            if (wasPlaying) this.play()
         } else {
             this.title.innerHTML = "Aucun résultat"
             this.clear()
@@ -191,10 +253,10 @@ export class AgAudioPlayer extends HTMLElement {
     }
 
     clear() {
+        this.playedTracks = []
         this.playlist.innerHTML = ''
-        this.currentTrack.innerHTML = ''
-        this.dataset["current"] = 0
-        this.dataset["playing"] = false
+        // this.dataset["current"] = 0
+        // this.dataset["playing"] = false
     }
 
     unshift(trackData) {

@@ -1,12 +1,17 @@
 // /* ==  Articles  ========================================== */
 
 article {
-
-    background-color: var(--secondary-color);
     text-align: center;
     min-height: 100%;
     max-width: 45rem;
 }
+
+article > *{
+    background-color: var(--secondary-color);
+
+}
+
+article iframe{max-width: 100%;}
 
 article + article{
     margin-top: 10px;
@@ -43,6 +48,9 @@ article header em {
 article footer {
     padding-top: 0;
     padding-bottom: 30px;
+}
+
+article footer *{
     max-width: 500px;
     margin: 0 auto;
 }

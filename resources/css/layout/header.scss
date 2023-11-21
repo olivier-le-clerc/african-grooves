@@ -4,7 +4,7 @@
    pointer-events: visible;
    background-color: var(--primary-color) !important;
    color: var(--secondary-color) !important;
-   padding-top: 0.5rem;
+   // padding-top: 0.5rem;
    position: relative;
    z-index: 1;
 }
@@ -111,7 +111,6 @@
    display: flex;
    justify-content:end;
    transition: all .3s;
-   background-color: var(--primary-color);
 }
 
 #search-drawer-toggle {
@@ -139,6 +138,8 @@
    }
 
    #search-drawer {
+   background-color: var(--primary-color);
+
       position: absolute;
       right: -100%;
       margin: auto;

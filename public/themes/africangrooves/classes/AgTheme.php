@@ -89,7 +89,17 @@ class AgTheme
             return $tag;
         }, 10, 3);
 
-        //
+        // no posts for index page
+
+        // function exclude_single_posts_home($query) {
+
+        //     if ( $query->is_main_query() ) {
+        //         var_dump($query->query_string);
+        //         // $query->set( 'post__in', array( 0 ) );
+        //     }
+        // }
+
+        // add_action( 'pre_get_posts', 'exclude_single_posts_home' );
 
         // Remove admin menu items.
         add_action('admin_init', function () {

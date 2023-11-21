@@ -1,18 +1,3 @@
-// export function getTrack(data = null) {
-
-//     if (!customElements.get('ag-track')) {
-//         customElements.define('ag-track', AgTrack)
-//     }
-
-//     let track = new AgTrack()
-//     track.dataset.id = data.id
-//     track.dataset.src = data.mp3_path
-
-//     track.data = data
-//     track.innerHTML = track.template
-
-//     return track
-// }
 
 export class AgTrack extends HTMLElement {
 

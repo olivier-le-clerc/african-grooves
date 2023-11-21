@@ -43,25 +43,53 @@ export function init() {
     })
 
     // song infos modal display
-    player.controls.buttons.plus.onclick = e => {
+    player.currentTrack.buttons.plus.onclick = e => {
         let id = player.currentTrack.dataset.postId
+
+        if (!player.isPlaying)
+            player.play()
+
         displaySongPost(id)
     }
+
+    // if player plays, pause all other audios
+
+    player.audio.addEventListener('play',e=>{
+        pauseOtherAudiosThan(player.audio)
+    })
 
     // track click action
     player.addEventListener('track-click', e => {
         let id = e.detail.post_id
+        let track = player.playlist.querySelector(`ag-track[data-post-id="${id}"]`)
+
+        if (player.currentTrack.dataset.postId !== id) {
+            player.next(track)
+        }
+
+        if (!player.isPlaying)
+            player.play()
+
         displaySongPost(id)
     })
 
+    if(modal.classList.contains('is-visible')){
+        makeRoomForModal()
+    }
+
     // disable map controls and closes menus when modal opened
-    modal.addEventListener('blog-modal-opened', e => {
+    modal.addEventListener('blog-modal-opened', makeRoomForModal)
+
+    function makeRoomForModal(){
         document.querySelector('#map-ui').classList.add('disableMap')
         player.classList.remove('is-open')
         closeAllDrawers()
-    })
+    }
 
-    modal.addEventListener('blog-modal-closed', e => document.querySelector('#map-ui').classList.remove('disableMap'))
+    modal.addEventListener('blog-modal-closed', e => {
+        window.history.pushState({ name: 'ag' }, 'ag-state', frontend.homeUrl)
+        document.querySelector('#map-ui').classList.remove('disableMap')
+    })
 
     // click on map closes modal when opened
     document.querySelector('#map-ui').addEventListener('click', e => {
@@ -85,10 +113,12 @@ export function init() {
     document.querySelector('#map-ui').addEventListener('click', e => {
 
         let link = e.target.href ?? null
-        if (link && link.includes(document.location.href) && !link.includes('wp-admin')) { // lien interne au site
+        if (link && link.includes(frontend.homeUrl) && !link.includes('wp-admin')) { // lien interne au site
             e.preventDefault()
 
-            link = link.replace(document.location.href, '')
+            window.history.pushState({ name: 'ag' }, 'ag-state', link)
+
+            link = link.replace(frontend.homeUrl, '')
 
             // if region change playlist
             if (link.includes('region')) {
@@ -101,8 +131,26 @@ export function init() {
             AgApi.fetchContent(link)
                 .then(e => {
                     modal.displayContent(e)
+
+                    // if audio player played, pause main player
+
+                    modal.querySelectorAll('audio').forEach(e=>{
+                        e.addEventListener('play',i=>{
+                            pauseOtherAudiosThan(e)
+                            player.pause()
+                        })
+                    })
                 })
                 .catch(e => modal.clear())
+        }
+    })
+
+    // link opened in modal have nice url, back button fix
+    addEventListener("popstate", e => {
+        if (e.state && e.state.name == 'ag') {
+            history.back()
+        } else {
+            history.back()
         }
     })
 
@@ -111,17 +159,22 @@ export function init() {
         if (e.target.classList.contains('blog-button-play')) {
             let id = e.target.dataset.post_id
             let track = player.playlist.querySelector(`[data-post-id="${id}"]`)
-            if(track){
+            if (track) {
                 player.next(track)
-            }else{
+            } else {
                 AgApi.fetchTrack(id)
-                .then(e=>player.add(e,0))
+                    .then(e => player.add(e, 0))
             }
-            player.audio.play()
+            player.play()
         }
     })
 
 
+}
+
+function pauseOtherAudiosThan(audio){
+    document.querySelectorAll('audio').forEach(f=>{
+        if(f !== audio)f.pause()})
 }
 
 function closeAllDrawers() {

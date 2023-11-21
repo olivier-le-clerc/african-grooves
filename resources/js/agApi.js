@@ -1,6 +1,6 @@
 export const AgApi = {
 
-    url: 'wp-json/africangrooves/v1/post/',
+    url: frontend.homeUrl + '/wp-json/africangrooves/v1/post/',
 
     fetch: async function (action, data = {}) {
         let res = await fetch(this.url, {

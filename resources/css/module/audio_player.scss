@@ -104,7 +104,8 @@
 
  /////////////////////////////////////////////////////////////////
 
- ag-track {
+ ag-track,
+ current-track {
 
      // vars
      --img-max-width: 70px;
@@ -130,21 +131,22 @@
      cursor: pointer;
  }
 
- ag-track.track--current{
-    animation-name: blink;
-    animation-duration: 0.5s;
-    animation-iteration-count: infinite;
-    animation-direction: alternate-reverse;
-    animation-timing-function: ease-in-out;
+ ag-track.track--current {
+     animation-name: blink;
+     animation-duration: 0.5s;
+     animation-iteration-count: infinite;
+     animation-direction: alternate-reverse;
+     animation-timing-function: ease-in-out;
  }
 
- @keyframes blink{
-    from{
-        opacity: 1;
-    }
-    to{
-        opacity: 0.5;
-    }
+ @keyframes blink {
+     from {
+         opacity: 1;
+     }
+
+     to {
+         opacity: 0.5;
+     }
  }
 
  ag-track.track--previous {
@@ -168,8 +170,60 @@
  }
 
 
- audio-controls {
+ audio-controls>* {
      display: flex;
      flex-wrap: nowrap;
      gap: 0.3rem;
+ }
+
+ current-track {
+
+     display: grid;
+
+     #progress-bar {
+        cursor: pointer;
+         position: relative;
+         background-color: grey;
+         min-height: 7px;
+         margin: 5px 0;
+         width: 100%;
+     }
+
+     #completion {
+         position: absolute;
+         top: 0;
+         left: 0;
+         bottom: 0;
+         background-color: var(--base-color);
+         width: 0;
+     }
+
+     .autoScroll{
+        display: inline-block;
+        animation: autoScroll 10s infinite linear;
+     }
+
+     @keyframes autoScroll {
+        from{
+            transform: translateX(100%);
+        }
+        to{
+            transform: translateX(-100%);
+        }
+
+     }
+
+     #current-song-title{
+        overflow: hidden;
+     }
+
+     #current-song-title h3{
+        text-overflow: clip;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        font-size: 1rem;
+        opacity: 0.9;
+     }
+
+
+
  }
