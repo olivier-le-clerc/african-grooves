@@ -1,4 +1,6 @@
-$sidebarWidth: 300px;
+@use '../base/sass_vars' as vars;
+
+
 
 .map-ui {
     pointer-events: none;
@@ -17,7 +19,7 @@ $sidebarWidth: 300px;
     pointer-events: auto;
 }
 
-@media screen and (orientation:landscape) {
+@media screen and (min-width:calc(vars.$breakpoint + 1px)) {
 
     .map-ui {
         display: grid;
@@ -27,7 +29,7 @@ $sidebarWidth: 300px;
 
     .map-ui_body {
         gap: 0.5rem;
-        grid-template-columns: minmax(0,1fr) $sidebarWidth;
+        grid-template-columns: minmax(0,1fr) vars.$sidebarWidth;
         grid-template-rows: minmax(0, 1fr);
         display: grid;
         width: 100%;
@@ -44,7 +46,7 @@ $sidebarWidth: 300px;
 
 }
 
-@media screen and (orientation:portrait) {
+@media screen and (max-width:vars.$breakpoint) {
     .map-ui {
         display: grid;
         grid-template-rows: min-content 1fr;

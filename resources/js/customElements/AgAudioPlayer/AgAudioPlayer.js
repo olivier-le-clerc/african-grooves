@@ -7,6 +7,8 @@ customElements.define('audio-controls', AudioControls)
 import { AgCurrentTrack } from "./AgCurrentTrack";
 customElements.define('current-track', AgCurrentTrack)
 
+import discogsUrl from '/img/Discogs_icon.svg'
+
 export class AgAudioPlayer extends HTMLElement {
 
     get template() {
@@ -27,7 +29,21 @@ export class AgAudioPlayer extends HTMLElement {
             <!-- drawer content is hidden on mobiles -->
             <div class="body">
                 <div id="playlist" class="scrollable"></div>
+
+                <div class="social-media mobile-only">
+                    <h2>Follow us !</h2>
+                <ul class="buttons">
+                    <li class="icon-wrap"><a href="<?= get_option('youtube_link') ?>" target="_blank"><i class="fa-brands fa-youtube"></i></a></li>
+                    <li class="icon-wrap"><a href="<?= get_option('instagram_link') ?>" target="_blank"><i class="fa-brands fa-instagram"></i></a></li>
+                    <li class="icon-wrap"><a href="<?= get_option('facebook_link') ?>" target="_blank"><i class="fa-brands fa-facebook"></i></a></li>
+                    <li class="icon-wrap"><a href="https://soundcloud.com/armand_de_preseau" target="_blank"><i class="fa-brands fa-soundcloud"></i></a></li>
+                    <li class="icon-wrap"><a href="<?= get_option('tiktok_link') ?>" target="_blank"><i class="fa-brands fa-tiktok"></i></a></li>
+                    <li class="icon-wrap"><a href="https://www.discogs.com/seller/starmint/profile" target="_blank"><i><img class="discogs-icon" src="${discogsUrl}"></i></a></li>
+                </ul>
             </div>
+            </div>
+
+
             `
     }
 
@@ -146,6 +162,7 @@ export class AgAudioPlayer extends HTMLElement {
             }
         } else {
             let current = this.querySelector('.track--current')
+
             if (current) {
                 res = this.querySelector('.track--current ~ .track--future')
             } else {
@@ -241,9 +258,21 @@ export class AgAudioPlayer extends HTMLElement {
             this.title.innerHTML = title[0].toUpperCase() + title.slice(1);
             // update playlist
             this.clear()
-            playlistData.content.forEach(e => this.add(e));
+            playlistData.content.forEach(e => {
+                let track = this.add(e)
 
-            this.next()
+                // if playlist contains current song, place first
+                if (this.currentTrack.dataset.postId == track.dataset.postId) {
+                    track.remove()
+                    this.playlist.firstChild.before(track)
+                    track.classList.add('track--current')
+                }
+            });
+
+            // keep reading current song
+            if (!this.isPlaying || document.querySelector('body').clientWidth < 850) {
+                this.next()
+            }
 
             if (wasPlaying) this.play()
         } else {
@@ -279,6 +308,7 @@ export class AgAudioPlayer extends HTMLElement {
             nextTrack.before(track)
             this.next()
         }
+        return track
     }
 
 }

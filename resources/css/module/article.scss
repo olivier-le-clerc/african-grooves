@@ -1,19 +1,24 @@
 // /* ==  Articles  ========================================== */
 
+@use '../base/sass_vars' as vars;
+
 article {
     text-align: center;
     min-height: 100%;
     max-width: 45rem;
 }
 
-article > *{
-    background-color: var(--secondary-color);
 
+article>* {
+    background-color: var(--secondary-color);
 }
 
-article iframe{max-width: 100%;}
 
-article + article{
+article iframe {
+    max-width: 100%;
+}
+
+article+article {
     margin-top: 10px;
 }
 
@@ -21,11 +26,11 @@ article header {
     // margin-top: 0;
     // padding: 25px 10px;
     background-color: var(--primary-color);
-    color:var(--secondary-color)
+    color: var(--secondary-color)
 }
 
-article >*{
-    padding:25px min(50px,10vw);
+article>* {
+    padding: 25px min(50px, 10vw);
 }
 
 article header a {
@@ -40,7 +45,7 @@ article header em {
     opacity: 0.5;
 }
 
-.article-content >*{
+.article-content>* {
     max-width: 500px;
     margin: 10px auto;
 }
@@ -50,7 +55,7 @@ article footer {
     padding-bottom: 30px;
 }
 
-article footer *{
+article footer * {
     max-width: 500px;
     margin: 0 auto;
 }

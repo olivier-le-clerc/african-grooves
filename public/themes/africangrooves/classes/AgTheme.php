@@ -25,9 +25,7 @@ class AgTheme
             flush_rewrite_rules();
         });
 
-
         // custom API endpoints
-
         AgApi::init();
 
         add_action('init', function () {
@@ -51,7 +49,6 @@ class AgTheme
         });
 
         //disable block editor
-
         add_filter( 'use_block_editor_for_post', '__return_false' );
 
         // Wordplate
@@ -71,11 +68,11 @@ class AgTheme
                 wp_enqueue_script('wordplate', get_theme_file_uri('assets/' . $manifest['resources/js/index.js']['file']), [], null);
                 wp_enqueue_style('wordplate', get_theme_file_uri('assets/' . $manifest['resources/js/index.css']['file']), [], null);
             }
+
             // customize
-            wp_add_inline_style('ag-style', AgCustomize::getCustomCss());
+            // wp_add_inline_style('ag-style', AgCustomize::getCustomCss());
 
             wp_localize_script('wordplate', 'frontend', [
-                // 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'homeUrl' => home_url()
             ]);
         });
@@ -89,19 +86,9 @@ class AgTheme
             return $tag;
         }, 10, 3);
 
-        // no posts for index page
+        if(is_admin()){
 
-        // function exclude_single_posts_home($query) {
-
-        //     if ( $query->is_main_query() ) {
-        //         var_dump($query->query_string);
-        //         // $query->set( 'post__in', array( 0 ) );
-        //     }
-        // }
-
-        // add_action( 'pre_get_posts', 'exclude_single_posts_home' );
-
-        // Remove admin menu items.
+                    // Remove admin menu items.
         add_action('admin_init', function () {
             remove_menu_page('edit-comments.php'); // Comments
             // remove_menu_page('edit.php?post_type=page'); // Pages
@@ -142,6 +129,9 @@ class AgTheme
             remove_meta_box('dashboard_quick_press', 'dashboard', 'side'); // Quick Draft
         });
 
+        }
+
+
         // Add custom login form logo.
         add_action('login_head', function () {
             $url = get_theme_file_uri('favicon.svg');
@@ -171,8 +161,8 @@ class AgTheme
             return $output;
         }, 30, 2);
 
-        if (is_customize_preview()) {
-            AgCustomize::setup();
-        }
+        // if (is_customize_preview()) {
+        //     AgCustomize::setup();
+        // }
     }
 }

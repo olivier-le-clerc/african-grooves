@@ -1,5 +1,7 @@
   /* ==  General Classes   ====================================== */
 
+  @use '../base/sass_vars' as vars;
+
   .container {
     max-width: 1300px;
     margin: auto;
@@ -16,14 +18,19 @@
     left: 0;
     
 }
+
+.buttons{
+  display: flex;
+  justify-content: space-between;
+}
  
-  @media screen and (min-width:701px) {
+  @media screen and (min-width:calc(vars.$breakpoint + 1px)) {
       .mobile-only {
           display: none !important;
       }
   }
 
-  @media screen and (max-width:700px) {
+  @media screen and (max-width:vars.$breakpoint) {
       .desktop-only {
           display: none !important;
       }

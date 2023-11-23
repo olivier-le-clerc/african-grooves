@@ -1,19 +1,26 @@
  /* == Music Player =========================*/
 
+ @use '../base/sass_vars' as vars;
+
+
  //positionnement
 
- @media screen and (orientation:landscape) {
+ @media screen and (min-width:calc(vars.$breakpoint + 1px)) {
 
      #playlist-toggle-button {
          display: none !important;
      }
  }
 
- @media screen and (orientation:portrait) {
+ @media screen and (max-width:vars.$breakpoint) {
 
      ag-audio-player .body {
          height: 0;
          transition: all 0.5s;
+     }
+
+     ag-audio-player header {
+         align-items: center
      }
 
      ag-audio-player.is-open .body {
@@ -84,6 +91,16 @@
          }
      }
 
+     .buttons a{
+        color:var(--secondary-color)
+     }
+
+     .social-media{
+        text-align: center;
+        margin:auto;
+        max-width: vars.$sidebarWidth;
+     }
+
      .scrollable {
          position: relative;
 
@@ -114,6 +131,8 @@
      grid-template-columns: var(--img-max-width) 1fr;
      grid-template-rows: repeat(3, min-content);
      column-gap: 0.3rem;
+     width: min(100%, vars.$sidebarWidth);
+     margin: 0 auto;
 
      .track-thumb {
          grid-row: 1 / -1;
@@ -181,12 +200,11 @@
      display: grid;
 
      #progress-bar {
-        cursor: pointer;
+         cursor: pointer;
          position: relative;
          background-color: grey;
          min-height: 7px;
          margin: 5px 0;
-         width: 100%;
      }
 
      #completion {
@@ -198,30 +216,31 @@
          width: 0;
      }
 
-     .autoScroll{
-        display: inline-block;
-        animation: autoScroll 10s infinite linear;
+     .autoScroll {
+         display: inline-block;
+         animation: autoScroll 10s infinite linear;
      }
 
      @keyframes autoScroll {
-        from{
-            transform: translateX(100%);
-        }
-        to{
-            transform: translateX(-100%);
-        }
+         from {
+             transform: translateX(100%);
+         }
+
+         to {
+             transform: translateX(-100%);
+         }
 
      }
 
-     #current-song-title{
-        overflow: hidden;
+     #current-song-title {
+         overflow: hidden;
      }
 
-     #current-song-title h3{
-        text-overflow: clip;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        font-size: 1rem;
-        opacity: 0.9;
+     #current-song-title h3 {
+         text-overflow: clip;
+         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+         font-size: 1rem;
+         opacity: 0.9;
      }
 
 

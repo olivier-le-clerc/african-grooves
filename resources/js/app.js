@@ -54,7 +54,7 @@ export function init() {
 
     // if player plays, pause all other audios
 
-    player.audio.addEventListener('play',e=>{
+    player.audio.addEventListener('play', e => {
         pauseOtherAudiosThan(player.audio)
     })
 
@@ -73,14 +73,14 @@ export function init() {
         displaySongPost(id)
     })
 
-    if(modal.classList.contains('is-visible')){
+    if (modal.classList.contains('is-visible')) {
         makeRoomForModal()
     }
 
     // disable map controls and closes menus when modal opened
     modal.addEventListener('blog-modal-opened', makeRoomForModal)
 
-    function makeRoomForModal(){
+    function makeRoomForModal() {
         document.querySelector('#map-ui').classList.add('disableMap')
         player.classList.remove('is-open')
         closeAllDrawers()
@@ -134,8 +134,8 @@ export function init() {
 
                     // if audio player played, pause main player
 
-                    modal.querySelectorAll('audio').forEach(e=>{
-                        e.addEventListener('play',i=>{
+                    modal.querySelectorAll('audio').forEach(e => {
+                        e.addEventListener('play', i => {
                             pauseOtherAudiosThan(e)
                             player.pause()
                         })
@@ -172,9 +172,10 @@ export function init() {
 
 }
 
-function pauseOtherAudiosThan(audio){
-    document.querySelectorAll('audio').forEach(f=>{
-        if(f !== audio)f.pause()})
+function pauseOtherAudiosThan(audio) {
+    document.querySelectorAll('audio').forEach(f => {
+        if (f !== audio) f.pause()
+    })
 }
 
 function closeAllDrawers() {

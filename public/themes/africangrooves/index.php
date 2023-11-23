@@ -17,7 +17,7 @@
     <div id="map-ui" class="map-ui layer show-when-loaded">
         <?php get_template_part('parts/site-header') ?>
 
-        <div id="controls" class="map-ui_body container">
+        <div id="controls" class="map-ui_body">
             <ag-blog-modal class="map-ui_main glass <?php if (have_posts() && !is_front_page()) echo "is-visible" ?>">
                 <?php if (have_posts()) : ?>
                     <?php while (have_posts()) {

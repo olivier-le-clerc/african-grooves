@@ -50,7 +50,7 @@ export class AgCurrentTrack extends HTMLElement {
             <!-- <h3 id="track-title" class="track-text track-title"></h3> -->
 
             <div id="progress-bar"><div id="completion"></div></div>
-            <div id="buttons">
+            <div class="buttons">
                 <button id="back" event="back" class="player-button button-back"><i class="fa-solid fa-backward-fast"></i></button>
                 <button id="play" event="play" class="player-button button-play" ><i class="fa-solid fa-play"></i></button>
                 <button id="next" event="next" class="player-button button-next"><i class="fa-solid fa-forward-fast"></i></button>

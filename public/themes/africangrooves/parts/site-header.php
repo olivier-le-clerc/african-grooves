@@ -9,13 +9,7 @@
       </label>
     </div>
 
-    <ul class="icon-group left desktop-only">
-      <li class="icon-wrap"><a href="<?= get_option('tiktok_link') ?>" target="_blank"><i class="fa-brands fa-tiktok"></i></a></li>
-      <li class="icon-wrap"><a href="<?= get_option('instagram_link') ?>" target="_blank"><i class="fa-brands fa-instagram"></i></a></li>
-      <li class="icon-wrap"><a href="<?= get_option('youtube_link') ?>" target="_blank"><i class="fa-brands fa-youtube"></i></a></li>
-      <li class="icon-wrap"><a href="<?= get_option('facebook_link') ?>" target="_blank"><i class="fa-brands fa-facebook"></i></a></li>
-
-    </ul>
+    <?php get_template_part('parts/social-media') ?>
 
     <div id="site-branding">
       <a href="<?= home_url() ?>">

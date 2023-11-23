@@ -55,5 +55,12 @@ export class AgBlogModal extends HTMLElement {
 
     setContent(val) {
         this.querySelector('.slot').innerHTML = val
+        this.openExternalLinksInAnewTab()
+    }
+
+    openExternalLinksInAnewTab() {
+        Array.from(this.querySelectorAll('a'))
+        .filter(e=>!e.href.includes(frontend.homeUrl))
+        .forEach(a => a.target="_blank")
     }
 }
