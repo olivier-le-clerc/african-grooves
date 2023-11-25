@@ -68,7 +68,8 @@ function the_ag_terms(WP_Post $post = null)
 		$post = get_post();
 	}
 	$post_id = $post->ID;
-	$separator = ', ';
+	$before = '#';
+	$separator = ', '.$before;
 	$tags = [
 		'regions' => get_the_term_list($post_id, RegionTaxonomy::SLUG, '', $separator),
 		'styles' => get_the_term_list($post_id, MusicalGenreTaxonomy::SLUG, '', $separator),
@@ -78,14 +79,14 @@ function the_ag_terms(WP_Post $post = null)
 	foreach ($tags as $key => $val) {
 		if ($val) {
 			if ($res) {
-				$res .= ', ' . $val;
+				$res .= $separator . $val;
 			} else {
 				$res = $val;
 			}
 		}
 	}
 
-	echo $res;
+	echo $res ? $before.$res : '';
 }
 
 function generate_dynamic_map_data()
@@ -158,7 +159,7 @@ function get_tracks(string $search = 'recent', string $tax = '')
 		"title" => '',
 		"content" => [],
 	];
-
+	// recent posts
 	if ($search == 'recent') {
 		$data["title"] = 'Recent Tracks';
 		$posts = get_posts([
@@ -167,6 +168,7 @@ function get_tracks(string $search = 'recent', string $tax = '')
 			'post_status' => 'publish',
 			'fields' => 'ids',
 		]);
+		// free search
 	} elseif (empty($tax)) {
 		$data["title"] = $search;
 		$posts = get_posts([
@@ -177,6 +179,7 @@ function get_tracks(string $search = 'recent', string $tax = '')
 			'fields' => 'ids',
 		]);
 	} else {
+		// songs
 		$data["title"] = $search;
 		$posts = get_posts([
 			'numberposts' => $limit,
@@ -203,12 +206,14 @@ function get_tracks(string $search = 'recent', string $tax = '')
 	return $data;
 }
 
-function get_featured_audio($song_id){
+function get_featured_audio($song_id)
+{
 	$track_id = get_post_meta($song_id, 'featured-audio', true);
 	return get_post($track_id);
 }
 
-function get_track_data(WP_Post $track){
+function get_track_data(WP_Post $track)
+{
 	$res = [];
 	$image_id = get_post_thumbnail_id($track->ID) ?? 0;
 	$res['post_id'] = $track->post_parent;
@@ -233,7 +238,8 @@ function ag_tag_cloud()
 	]);
 }
 
-function replaceAudioPlayer($str){
+function replaceAudioPlayer($str)
+{
 	$replacement = '<button class="blog-button blog-button-play" data-post_id="' . get_the_ID() . '">Play Now</button>';
 	return preg_replace('/<audio.*audio>/mU', $replacement, $str, 1);
 }

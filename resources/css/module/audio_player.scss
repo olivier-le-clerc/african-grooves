@@ -50,11 +50,16 @@
  ag-audio-player {
      color: var(--secondary-color);
 
-     background-color: var(--primary-color);
-     padding: 0.5rem;
+    //  background-color: var(--primary-color);
+    //  padding: 0.5rem;
 
      display: flex;
      flex-direction: column;
+
+     >*{
+        background-color: var(--primary-color);
+        padding: 0.5rem;
+     }
 
      h2,
      h3,
@@ -82,6 +87,7 @@
      }
 
      .body {
+        backdrop-filter: brightness(200%);
          display: flex;
          flex-direction: column;
          overflow: hidden;

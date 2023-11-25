@@ -264,7 +264,11 @@ export class AgAudioPlayer extends HTMLElement {
                 // if playlist contains current song, place first
                 if (this.currentTrack.dataset.postId == track.dataset.postId) {
                     track.remove()
-                    this.playlist.firstChild.before(track)
+                    if(this.playlist.firstChild!==null){
+                        this.playlist.firstChild.before(track)
+                    }else{
+                        this.playlist.firstChild.before(track)
+                    }
                     track.classList.add('track--current')
                 }
             });

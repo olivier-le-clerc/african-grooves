@@ -93,6 +93,10 @@
 
 /* SearchBar */
 
+#navbar-search{
+   display: flex;
+}
+
 #navbar-search input {
    width: min(12rem, 20vw);
    padding: 0.8rem;
@@ -102,7 +106,12 @@
 }
 
 #navbar-search button {
-   display: none;
+   // display: none;
+   color: var(--secondary-color);
+}
+
+#navbar-search button:hover{
+   cursor: pointer;
 }
 
 #searchbar input:focus {

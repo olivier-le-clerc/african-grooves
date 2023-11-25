@@ -1,5 +1,6 @@
 import vinylUrl from '/img/vinyl.svg'
 
+
 export class AgBlogModal extends HTMLElement {
 
     get template() {
@@ -10,7 +11,8 @@ export class AgBlogModal extends HTMLElement {
 
             </div>
             </div>
-                <button id="post-close-button" class="icon-wrap modal-close"><i class="fa-solid fa-x"></i></button>
+                <button id="post-share-button" class="icon-wrap modal-control modal-control__share"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                <button id="post-close-button" class="icon-wrap modal-control modal-control__close"><i class="fa-solid fa-x"></i></button>
                 <div class="slot"></div>
     `
     }
@@ -23,9 +25,21 @@ export class AgBlogModal extends HTMLElement {
 
         this.innerHTML = this.template
         this.querySelector(".slot").innerHTML = content
-        this.querySelector('button').onclick = e => {
+        this.querySelector('#post-close-button').onclick = e => {
             this.clear()
         }
+        this.querySelector('#post-share-button').onclick = e => {
+            let url = window.location.href
+            navigator.clipboard.writeText(url).then(e=>this.alert("page adress copied to clipboard"))
+        }
+    }
+
+    alert(str){
+        let alert = document.createElement('div')
+        alert.classList.add('alert')
+        alert.innerHTML = `<p>${str}</p>`
+        document.body.appendChild(alert)
+        setTimeout(e=>document.body.removeChild(alert),2000)
     }
 
     displayLoader() {
@@ -60,7 +74,7 @@ export class AgBlogModal extends HTMLElement {
 
     openExternalLinksInAnewTab() {
         Array.from(this.querySelectorAll('a'))
-        .filter(e=>!e.href.includes(frontend.homeUrl))
-        .forEach(a => a.target="_blank")
+            .filter(e => !e.href.includes(frontend.homeUrl))
+            .forEach(a => a.target = "_blank")
     }
 }

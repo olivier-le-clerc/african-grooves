@@ -42,6 +42,7 @@
 
     <div id="loader" class="layer">
         <h1><?php bloginfo('name') ?></h1>
+        
         <h2><?php bloginfo('description') ?></h2>
         <img src="<?= get_stylesheet_directory_uri() . '/assets/img/vinyl.svg' ?>" alt="">
     </div>

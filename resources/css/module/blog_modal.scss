@@ -47,14 +47,21 @@ ag-blog-modal {
         }
     }
 
-    .modal-close {
+    .modal-control {
         color: var(--secondary-color);
         position: absolute;
-        top: 1rem;
-        right: 1rem;
-
         border-radius: 50%;
         background-color: var(--primary-color );
+    }
+
+    .modal-control__close{
+        top: 1rem;
+        right: 1rem;
+    }
+
+    .modal-control__share{
+        top: 1rem;
+        left: 1rem; 
     }
 
     .slot {

@@ -141,7 +141,7 @@ class SongPostType
                 // updates attachment meta
                 wp_update_attachment_metadata($mp3_id, [
                     'title' => $post->post_title,
-                    'artist' => $params['artist'],
+                    'artist' => get_post_meta($post_id,AgMetaBox::META_KEYS['music_band'],true),
                     'album' => $params['album'],
                     'year' => get_post_meta($post_id, AgMetaBox::META_KEYS['year'], true),
                     'label' => $params['label'],
@@ -225,14 +225,15 @@ class SongPostType
 
     public static function get_song($id)
     {
-        $res = '';
+        $res = [];
+        $res['link'] = get_permalink($id);
         global $post;
         $post = get_post($id);
         setup_postdata($post);
 
         ob_start();
         get_template_part('parts/article');
-        $res = ob_get_clean();
+        $res['content'] = ob_get_clean();
 
         wp_reset_postdata();
 

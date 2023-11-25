@@ -32,8 +32,9 @@
         grid-template-columns: minmax(0,1fr) vars.$sidebarWidth;
         grid-template-rows: minmax(0, 1fr);
         display: grid;
-        width: 100%;
+        width: 98%;
         height: 100%;
+        margin: auto;
     }
 
     .map-ui_main {

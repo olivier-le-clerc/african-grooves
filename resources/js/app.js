@@ -19,9 +19,9 @@ export function init() {
     player = document.querySelector('ag-audio-player')
     modal = document.querySelector('ag-blog-modal')
 
-    // get last tracks
-    AgApi.getLastTracks()
-        .then(e => player.update(e))
+    // get tracks
+    let url = new URL(window.location.href)
+    AgApi.getTracks().then(e=>player.update(e))
 
     // toggle playlist drawer
     player.querySelector('#playlist-toggle-button').onclick = e => {
@@ -36,6 +36,8 @@ export function init() {
     // country click updates player action
     svg.addEventListener("click", e => {
         if (e.target.localName == "path" && e.target.dataset.count > 0) {
+            svg.querySelector('.current')?.classList.remove('current')
+            e.target.classList.add('current')
             let country = e.target.dataset.name
             AgApi.getSongsByRegion(country)
                 .then(e => { player.update(e) })
@@ -118,32 +120,36 @@ export function init() {
 
             window.history.pushState({ name: 'ag' }, 'ag-state', link)
 
-            link = link.replace(frontend.homeUrl, '')
-
-            // if region change playlist
-            if (link.includes('region')) {
-                let region = link.replace(/.*region\//, '').replace('/', '')
-                AgApi.getSongsByRegion(region).then(e => player.update(e))
-            }
-
-            link = link.replace('index.php', '')
-            modal.displayLoader()
-            AgApi.fetchContent(link)
-                .then(e => {
-                    modal.displayContent(e)
-
-                    // if audio player played, pause main player
-
-                    modal.querySelectorAll('audio').forEach(e => {
-                        e.addEventListener('play', i => {
-                            pauseOtherAudiosThan(e)
-                            player.pause()
-                        })
-                    })
-                })
-                .catch(e => modal.clear())
+            loadContent(link)
         }
     })
+
+    function loadContent(url){
+        url = url.replace(frontend.homeUrl, '')
+        url = url.replace('index.php', '')
+
+        // if region change playlist
+        if (url.includes('region')) {
+            let region = url.replace(/.*region\//, '').replace('/', '')
+            AgApi.getSongsByRegion(region).then(e => player.update(e))
+        }
+
+        modal.displayLoader()
+        AgApi.fetchContent(url)
+            .then(e => {
+                modal.displayContent(e)
+
+                // if audio player played, pause main player
+
+                modal.querySelectorAll('audio').forEach(e => {
+                    e.addEventListener('play', i => {
+                        pauseOtherAudiosThan(e)
+                        player.pause()
+                    })
+                })
+            })
+            .catch(e => modal.clear())
+    }
 
     // link opened in modal have nice url, back button fix
     addEventListener("popstate", e => {
@@ -185,7 +191,10 @@ function closeAllDrawers() {
 function displaySongPost(id) {
     modal.displayLoader()
     AgApi.getSongPost(id)
-        .then(e => modal.displayContent(e))
+        .then(e => {
+            window.history.pushState({ name: 'ag' }, 'ag-state', e.link)
+            modal.displayContent(e.content)}
+            )
         .catch(e => modal.clear())
 }
 

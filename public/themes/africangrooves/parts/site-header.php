@@ -13,7 +13,7 @@
 
     <div id="site-branding">
       <a href="<?= home_url() ?>">
-        <h1 class="site-title"><?php bloginfo('name') ?></h1>
+        <h1 class="site-title"><?php bloginfo('name') ?><div class="h1-subtitle">Since 2010</div></h1>
       </a>
     </div>
 

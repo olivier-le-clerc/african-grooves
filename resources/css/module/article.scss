@@ -4,7 +4,6 @@
 
 article {
     text-align: center;
-    min-height: 100%;
     max-width: 45rem;
 }
 
@@ -58,4 +57,8 @@ article footer {
 article footer * {
     max-width: 500px;
     margin: 0 auto;
+}
+
+article .term-list{
+    color:var(--link-color);
 }

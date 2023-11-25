@@ -31,7 +31,8 @@ export const AgApi = {
         return this.fetch('region', { region: region })
     },
 
-    getLastTracks: function () {
+    getTracks: function (url = '') {
+        url = url.replace('/index.php', '')
         return this.fetch('last_tracks')
     },
 
