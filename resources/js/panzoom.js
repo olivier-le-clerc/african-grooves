@@ -6,6 +6,12 @@ export class PanZoom {
    constructor(svg) {
       this.svg = svg
       this.port = { w: this.svg.getAttribute("width"), h: this.svg.getAttribute("height") }
+      this.bounds = {
+         xMin: -0.5 * this.port.w,
+         yMin: -0.5 * this.port.h,
+         xMax: 1.5 * this.port.w,
+         yMax: 1.5 * this.port.h
+      }
       this.box = this.svg.viewBox.baseVal
       this.distance = 0
       this.pointers = {}
@@ -69,6 +75,25 @@ export class PanZoom {
       delete this.pointers[e.pointerId];
    }
 
+   applyTransform(dx, dy) {
+
+      let x = this.box.x + dx
+      let y = this.box.y + dy
+
+      if (x < this.bounds.xMin)
+         x = this.bounds.xMin
+      if (x + this.box.width > this.bounds.xMax)
+         x = this.bounds.xMax - this.box.width
+      if (y < this.bounds.yMin)
+         y = this.bounds.yMin
+      if (y + this.box.height > this.bounds.yMax)
+         y = this.bounds.yMax - this.box.height
+
+      this.box.x = x
+      this.box.y = y
+
+   }
+
    pointerMoveHandler(e) {
 
       if (Object.keys(this.pointers).length == 1) { // panning
@@ -76,9 +101,11 @@ export class PanZoom {
          let scale = this.svg.clientWidth / this.box.width;
          let [dx, dy] = [(point.x - e.x) / scale, (point.y - e.y) / scale];
          this.distance++;
-         this.box.x += dx;
-         this.box.y += dy;
+
+         this.applyTransform(dx, dy);
+
          [point.x, point.y] = [e.x, e.y];
+
       } else if (Object.keys(this.pointers).length >= 2) { // tactile zoom
          let point = this.pointers[e.pointerId];
          let center = {
@@ -110,10 +137,10 @@ export class PanZoom {
          , [dx, dy] = [dw * mx / this.svg.clientWidth, dh * my / this.svg.clientHeight];
 
       if (this.port.w / this.zoomVals.max < this.box.width - dw && this.box.width - dw < this.port.w / this.zoomVals.min) {
-         this.box.x += dx;
-         this.box.y += dy;
          this.box.width -= dw;
          this.box.height -= dh;
+         this.applyTransform(dx, dy);
+
       }
    }
 
