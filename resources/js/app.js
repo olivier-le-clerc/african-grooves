@@ -19,9 +19,28 @@ export function init() {
     player = document.querySelector('ag-audio-player')
     modal = document.querySelector('ag-blog-modal')
 
-    // get tracks
-    let url = new URL(window.location.href)
-    AgApi.getTracks().then(e=>player.update(e))
+    // disable map controls and closes menus when modal opened
+    modal.addEventListener('blog-modal-opened', makeRoomForModal)
+
+    function makeRoomForModal() {
+        document.querySelector('#map-ui').classList.add('disableMap')
+        player.classList.remove('is-open')
+        closeAllDrawers()
+    }
+
+    modal.addEventListener('blog-modal-closed', e => {
+        window.history.pushState({ name: 'ag' }, 'ag-state', frontend.homeUrl)
+        document.querySelector('#map-ui').classList.remove('disableMap')
+    })
+
+    // click on map closes modal when opened
+    document.querySelector('#map-ui').addEventListener('click', e => {
+        if (e.target.id == 'map-ui')
+            modal.clear()
+    })
+
+    // load content based on uri
+    loadContent(window.location.href)
 
     // toggle playlist drawer
     player.querySelector('#playlist-toggle-button').onclick = e => {
@@ -55,7 +74,6 @@ export function init() {
     }
 
     // if player plays, pause all other audios
-
     player.audio.addEventListener('play', e => {
         pauseOtherAudiosThan(player.audio)
     })
@@ -73,30 +91,6 @@ export function init() {
             player.play()
 
         displaySongPost(id)
-    })
-
-    if (modal.classList.contains('is-visible')) {
-        makeRoomForModal()
-    }
-
-    // disable map controls and closes menus when modal opened
-    modal.addEventListener('blog-modal-opened', makeRoomForModal)
-
-    function makeRoomForModal() {
-        document.querySelector('#map-ui').classList.add('disableMap')
-        player.classList.remove('is-open')
-        closeAllDrawers()
-    }
-
-    modal.addEventListener('blog-modal-closed', e => {
-        window.history.pushState({ name: 'ag' }, 'ag-state', frontend.homeUrl)
-        document.querySelector('#map-ui').classList.remove('disableMap')
-    })
-
-    // click on map closes modal when opened
-    document.querySelector('#map-ui').addEventListener('click', e => {
-        if (e.target.id == 'map-ui')
-            modal.clear()
     })
 
     // search form
@@ -117,39 +111,12 @@ export function init() {
         let link = e.target.href ?? null
         if (link && link.includes(frontend.homeUrl) && !link.includes('wp-admin')) { // lien interne au site
             e.preventDefault()
-
             window.history.pushState({ name: 'ag' }, 'ag-state', link)
-
             loadContent(link)
         }
     })
 
-    function loadContent(url){
-        url = url.replace(frontend.homeUrl, '')
-        url = url.replace('index.php', '')
-
-        // if region change playlist
-        if (url.includes('region')) {
-            let region = url.replace(/.*region\//, '').replace('/', '')
-            AgApi.getSongsByRegion(region).then(e => player.update(e))
-        }
-
-        modal.displayLoader()
-        AgApi.fetchContent(url)
-            .then(e => {
-                modal.displayContent(e)
-
-                // if audio player played, pause main player
-
-                modal.querySelectorAll('audio').forEach(e => {
-                    e.addEventListener('play', i => {
-                        pauseOtherAudiosThan(e)
-                        player.pause()
-                    })
-                })
-            })
-            .catch(e => modal.clear())
-    }
+    
 
     // link opened in modal have nice url, back button fix
     addEventListener("popstate", e => {
@@ -174,8 +141,48 @@ export function init() {
             player.play()
         }
     })
+}
 
+function loadContent(url) {
+    url = nicePath(url)
+    renderPlayer(url)
+    renderModal(url)
+}
 
+function nicePath(url) {
+    let res = url.replace(frontend.homeUrl, '')
+        .replace('index.php', '')
+        .replace(/^\/+/, '').replace(/\/+$/, '')
+    return res
+}
+
+async function renderModal(url) {
+    if (!url) return
+    modal.displayLoader()
+    AgApi.fetchContent(url)
+        .then(e => {
+            modal.displayContent(e)
+
+            // if audio player played, pause main player
+
+            modal.querySelectorAll('audio').forEach(e => {
+                e.addEventListener('play', i => {
+                    pauseOtherAudiosThan(e)
+                    player.pause()
+                })
+            })
+        })
+        .catch(e => modal.clear())
+}
+
+async function renderPlayer(url) {
+    // if region change playlist
+    if (url.includes('region')) {
+        let region = url.replace(/.*region\//, '').replace('/', '')
+        AgApi.getSongsByRegion(region).then(e => player.update(e))
+    } else if (player.isEmpty) {
+        AgApi.getLastTracks().then(e => player.update(e))
+    }
 }
 
 function pauseOtherAudiosThan(audio) {
@@ -193,8 +200,9 @@ function displaySongPost(id) {
     AgApi.getSongPost(id)
         .then(e => {
             window.history.pushState({ name: 'ag' }, 'ag-state', e.link)
-            modal.displayContent(e.content)}
-            )
+            modal.displayContent(e.content)
+        }
+        )
         .catch(e => modal.clear())
 }
 

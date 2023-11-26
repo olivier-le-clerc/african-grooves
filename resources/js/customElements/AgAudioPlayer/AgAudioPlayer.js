@@ -122,6 +122,10 @@ export class AgAudioPlayer extends HTMLElement {
 
     get playlist() { return this.querySelector('#playlist') }
 
+    get isEmpty() {
+        return this.playlist.querySelector('ag-track') == null
+    }
+
     toggle() {
         this.isPlaying = !this.isPlaying
         this.isPlaying ? this.play() : this.pause()

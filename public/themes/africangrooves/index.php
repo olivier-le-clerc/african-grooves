@@ -18,21 +18,7 @@
         <?php get_template_part('parts/site-header') ?>
 
         <div id="controls" class="map-ui_body">
-            <ag-blog-modal class="map-ui_main glass <?php if (have_posts() && !is_front_page()) echo "is-visible" ?>">
-                <?php if (have_posts()) : ?>
-                    <?php while (have_posts()) {
-                        the_post();
-                        get_template_part('parts/article');
-                    } ?>
-                <?php else : ?>
-                    Aucun article trouvé
-                <?php endif ?>
-
-                <?php if (is_archive() || is_search()) : ?>
-                    <!-- pagination -->
-                    <?php the_posts_pagination() ?>
-                <?php endif ?>
-
+            <ag-blog-modal class="map-ui_main glass">
             </ag-blog-modal>
             <ag-audio-player class="map-ui_aside glass"></ag-audio-player>
         </div>

@@ -13,7 +13,11 @@ ag-blog-modal {
         display: none;
     }
 
-    &.is-visible {
+    button.modal-control{
+        display:none;
+    }
+
+    &.is-visible, &.is-visible button {
         display: block;
     }
 

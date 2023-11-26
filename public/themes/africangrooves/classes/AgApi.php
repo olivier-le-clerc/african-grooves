@@ -59,7 +59,6 @@ function ag_fetch_content($url)
 {
     $res = '';
     // $args = ['post_type'=>'post'];
-
     if ($url) {
         $url = trim($url, '/');
         $url = explode('/', $url);
@@ -81,6 +80,11 @@ function ag_fetch_content($url)
                 $args = [
                     'tag' => $url[1],
                     'post_type' => SongPostType::SLUG,
+                ];
+            }elseif($url[0] == 'song'){
+                $args = [
+                    'post_type' => SongPostType::SLUG,
+                    "name" => $url[1],
                 ];
             } else {
                 $args = [

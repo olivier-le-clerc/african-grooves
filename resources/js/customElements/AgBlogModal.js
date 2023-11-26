@@ -8,8 +8,7 @@ export class AgBlogModal extends HTMLElement {
             <div class="modal-loader">
                 <div class="img-wrap">
                 <img src="${vinylUrl}" alt="">
-
-            </div>
+                </div>
             </div>
                 <button id="post-share-button" class="icon-wrap modal-control modal-control__share"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
                 <button id="post-close-button" class="icon-wrap modal-control modal-control__close"><i class="fa-solid fa-x"></i></button>
