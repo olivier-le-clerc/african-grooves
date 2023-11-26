@@ -59,6 +59,20 @@
     // backdrop-filter: blur(10px);
   }
 
+  .h1-subtitle{
+    font-size: 1.2rem;
+    font-family: var(--title-font);
+    text-align: right;
+    font-weight: initial;
+    margin-top: -0.4rem!important;
+  }
+  @media screen and (max-width:800px) {
+    .h1-subtitle {
+       font-size: 3vw!important;
+       margin-top: -0.8vw!important;
+    }
+  }
+
   .alert {
     position: fixed;
     left: 50%;

@@ -17,7 +17,7 @@ ag-blog-modal {
         display:none;
     }
 
-    &.is-visible, &.is-visible button {
+    &.is-visible, &.is-visible button.modal-control {
         display: block;
     }
 
