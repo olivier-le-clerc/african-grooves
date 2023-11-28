@@ -1,6 +1,8 @@
 // /* ==  Articles  ========================================== */
 
 @use '../base/sass_vars' as vars;
+$image-max-width:500px;
+$article-max-width:750px;
 
 article {
     text-align: center;
@@ -45,8 +47,16 @@ article header em {
 }
 
 .article-content>* {
-    max-width: 500px;
+    max-width: $article-max-width;
     margin: 10px auto;
+}
+
+.article-content img{
+    max-width: min(100%,$image-max-width);
+}
+
+.article-content figure{
+    margin:0 auto;
 }
 
 article footer {

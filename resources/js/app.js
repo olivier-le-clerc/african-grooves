@@ -13,6 +13,7 @@ customElements.define('ag-blog-modal', AgBlogModal)
 
 import { AgApi } from "./agApi.js";
 
+const defaultPlayerTitle = "Recent Tracks"
 
 export function init() {
 
@@ -116,7 +117,7 @@ export function init() {
         }
     })
 
-    
+
 
     // link opened in modal have nice url, back button fix
     addEventListener("popstate", e => {
@@ -164,8 +165,11 @@ async function renderModal(url) {
             modal.displayContent(e)
 
             // if audio player played, pause main player
-
             modal.querySelectorAll('audio').forEach(e => {
+                // disable right click
+                e.addEventListener('contextmenu',i=>{
+                        i.preventDefault()
+                })
                 e.addEventListener('play', i => {
                     pauseOtherAudiosThan(e)
                     player.pause()
@@ -180,7 +184,7 @@ async function renderPlayer(url) {
     if (url.includes('region')) {
         let region = url.replace(/.*region\//, '').replace('/', '')
         AgApi.getSongsByRegion(region).then(e => player.update(e))
-    } else if (player.isEmpty) {
+    } else if (player.isEmpty || player.title !== defaultPlayerTitle) {
         AgApi.getLastTracks().then(e => player.update(e))
     }
 }

@@ -271,7 +271,7 @@ export class AgAudioPlayer extends HTMLElement {
                     if(this.playlist.firstChild!==null){
                         this.playlist.firstChild.before(track)
                     }else{
-                        this.playlist.firstChild.before(track)
+                        this.playlist.appendChild(track)
                     }
                     track.classList.add('track--current')
                 }
