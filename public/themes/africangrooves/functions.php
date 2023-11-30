@@ -240,6 +240,8 @@ function ag_tag_cloud()
 
 function replaceAudioPlayer($str)
 {
-	$replacement = '<button class="blog-button blog-button-play" data-post_id="' . get_the_ID() . '">Play Now</button>';
+	$replacement = '
+	<button class="blog-button blog-button-play" data-post_id="' . get_the_ID() . '">Play Now</button>
+	<button class="blog-button blog-button-share" data-src="' . get_the_permalink() . '">Share this song</button>';
 	return preg_replace('/<audio.*audio>/mU', $replacement, $str, 1);
 }

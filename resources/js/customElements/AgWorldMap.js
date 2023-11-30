@@ -3,6 +3,8 @@ import mapUrl from '/img/world-map.svg'
 let map = await fetch(mapUrl).then(e => e.text())
 let data = await fetch(frontend.homeUrl + '/themes/africangrooves/cache/dynamic_map_data.json').then(r => r.json())
 
+let interval = 0
+
 export class AgWorldMap extends HTMLElement {
     constructor() {
         super()
@@ -19,10 +21,22 @@ export class AgWorldMap extends HTMLElement {
 
         let tooltip = document.createElement('div');
         tooltip.classList.add('tooltip')
-        tooltip.innerHTML = 'test'
+        tooltip.innerHTML = ''
+
+        this.onclick = e =>{
+            if (e.target.dataset.count > 0) {
+
+                clearInterval(interval)
+                this.querySelector('.highlight')?.classList.remove('highlight')
+                interval = setInterval(el=>e.target.classList.toggle('highlight'),500)
+
+            }
+
+        }
 
         this.onmousemove = e => {
             if (e.target.dataset.count > 0) {
+
                 let name = e.target.dataset.name
                 if (tooltip.innerHTML !== name) {
                     this.appendChild(tooltip)
@@ -34,7 +48,7 @@ export class AgWorldMap extends HTMLElement {
         }
 
         this.onmouseout = e => {
-            tooltip.innerHTML=''
+            tooltip.innerHTML = ''
             if (this.querySelector('.tooltip')) {
                 this.removeChild(tooltip)
             }

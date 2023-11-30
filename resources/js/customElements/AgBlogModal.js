@@ -29,8 +29,12 @@ export class AgBlogModal extends HTMLElement {
         }
         this.querySelector('#post-share-button').onclick = e => {
             let url = window.location.href
-            navigator.clipboard.writeText(url).then(e=>this.alert("page adress copied to clipboard"))
+            this.copyToClipboard(url)
         }
+    }
+
+    copyToClipboard(url){
+        navigator.clipboard.writeText(url).then(e=>this.alert("page adress copied to clipboard"))
     }
 
     alert(str){

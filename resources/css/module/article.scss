@@ -1,18 +1,22 @@
 // /* ==  Articles  ========================================== */
 
 @use '../base/sass_vars' as vars;
-$image-max-width:500px;
-$article-max-width:750px;
 
 article {
     text-align: center;
     margin:auto;
-
 }
 
 article>* {
     background-color: var(--secondary-color);
 }
+
+.article-content p, .article-content div{
+    max-width: vars.$article-max-width;
+    text-align: justify!important;
+    margin: 10px auto;
+}
+
 
 
 article iframe {
@@ -46,13 +50,13 @@ article header em {
     opacity: 0.5;
 }
 
-.article-content>* {
-    max-width: $article-max-width;
-    margin: 10px auto;
-}
+
+
 
 .article-content img{
-    max-width: min(100%,$image-max-width);
+    max-width: min(100%,vars.$article-max-width);
+    width: min(100%,vars.$article-max-width);
+    // float: left;
 }
 
 .article-content figure{

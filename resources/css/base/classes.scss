@@ -79,12 +79,13 @@
     top: 50%;
     transform: translate(-50%, -50%);
     background-color: var(--secondary-color);
+    box-shadow: 0 0 3rem black;
     color: var(--primary-color);
     padding: 1rem;
     border-radius: 1rem;
     transition: opacity 0.5s;
     opacity: 0;
-    animation: fade 1.5s linear;
+    animation: fade 1.8s ease-in-out;
     
   }
 
