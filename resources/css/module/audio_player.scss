@@ -148,7 +148,7 @@
          justify-self: center;
      }
 
-     .track-thumb+* {
+     .track-thumb~* {
          grid-column: 2;
      }
  }
@@ -224,7 +224,7 @@
      }
 
      .autoScroll {
-         display: inline-block;
+        //  display: inline-block;
          animation: autoScroll 10s infinite linear;
      }
 

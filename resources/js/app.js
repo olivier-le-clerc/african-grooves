@@ -163,6 +163,8 @@ function nicePath(url) {
 
 async function renderModal(url) {
     if (!url) return
+
+    closeAllDrawers()
     modal.displayLoader()
     AgApi.fetchContent(url)
         .then(e => {

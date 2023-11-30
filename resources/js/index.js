@@ -28,8 +28,8 @@ setTimeout(function () {
 }, MIN_TIME_MS);
 
 // pageSetup()
-init()
-loaded = true;
+   init()
+   loaded = true;
 
 if (elapsed) {
    hideLoadingScreen();
