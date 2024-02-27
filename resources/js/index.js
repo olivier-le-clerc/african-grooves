@@ -17,6 +17,7 @@ import { init } from './app.js';
 
 const MIN_TIME_MS = 2000;
 
+
 var elapsed = false;
 var loaded = false;
 
@@ -28,8 +29,8 @@ setTimeout(function () {
 }, MIN_TIME_MS);
 
 // pageSetup()
-   init()
-   loaded = true;
+      init()
+      loaded = true;
 
 if (elapsed) {
    hideLoadingScreen();

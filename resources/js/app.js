@@ -20,6 +20,20 @@ export function init() {
     player = document.querySelector('ag-audio-player')
     modal = document.querySelector('ag-blog-modal')
 
+
+
+    // Intersection observer
+    let observer = new IntersectionObserver((entries, observer) => {
+        console.log(entries)
+    },{
+    })
+
+    modal.addEventListener('modal-updated',e=>{
+        let el = e.detail.lastElement
+        console.log(el)
+        observer.observe(el)
+    })
+
     // disable map controls and closes menus when modal opened
     modal.addEventListener('blog-modal-opened', makeRoomForModal)
 
@@ -88,6 +102,7 @@ export function init() {
             player.next(track)
         }
 
+        console.log(player.isPlaying)
         if (!player.isPlaying)
             player.play()
 
@@ -141,11 +156,13 @@ export function init() {
             }
             player.play()
         }
-        if (e.target.classList.contains('blog-button-share')){
+        if (e.target.classList.contains('blog-button-share')) {
             let url = e.target.dataset.src;
             modal.copyToClipboard(url)
         }
     })
+
+
 }
 
 function loadContent(url) {
@@ -173,14 +190,16 @@ async function renderModal(url) {
             // if audio player played, pause main player
             modal.querySelectorAll('audio').forEach(e => {
                 // disable right click
-                e.addEventListener('contextmenu',i=>{
-                        i.preventDefault()
+                e.addEventListener('contextmenu', i => {
+                    i.preventDefault()
                 })
                 e.addEventListener('play', i => {
                     pauseOtherAudiosThan(e)
                     player.pause()
                 })
             })
+
+            return true
         })
         .catch(e => modal.clear())
 }
@@ -189,10 +208,16 @@ async function renderPlayer(url) {
     // if region change playlist
     if (url.includes('region')) {
         let region = url.replace(/.*region\//, '').replace('/', '')
-        AgApi.getSongsByRegion(region).then(e => player.update(e))
+        AgApi.getSongsByRegion(region).then(e => {
+            player.update(e)
+        })
     } else if (player.isEmpty || player.title !== defaultPlayerTitle) {
-        AgApi.getLastTracks().then(e => player.update(e))
+        AgApi.getLastTracks().then(e => {
+            player.update(e)
+
+        })
     }
+    return true
 }
 
 function pauseOtherAudiosThan(audio) {

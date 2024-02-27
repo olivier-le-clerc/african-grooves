@@ -12,7 +12,9 @@ export class AgBlogModal extends HTMLElement {
             </div>
                 <button id="post-share-button" class="icon-wrap modal-control modal-control__share"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
                 <button id="post-close-button" class="icon-wrap modal-control modal-control__close"><i class="fa-solid fa-x"></i></button>
-                <div class="slot"></div>
+                <div class="slot">
+                </div>
+            </div>
     `
     }
 
@@ -42,7 +44,7 @@ export class AgBlogModal extends HTMLElement {
         alert.classList.add('alert')
         alert.innerHTML = `<p>${str}</p>`
         document.body.appendChild(alert)
-        setTimeout(e=>document.body.removeChild(alert),2000)
+        // setTimeout(()=>document.body.removeChild(alert),2000)
     }
 
     displayLoader() {
@@ -64,6 +66,10 @@ export class AgBlogModal extends HTMLElement {
         return this.classList.contains('is-visible') || this.classList.contains('is-loading')
     }
 
+    get lastElement(){
+        return this.querySelector('.slot').lastElementChild
+    }
+
     clear() {
         this.classList.remove('is-visible', 'is-loading')
         this.setContent('')
@@ -73,6 +79,7 @@ export class AgBlogModal extends HTMLElement {
     setContent(val) {
         this.querySelector('.slot').innerHTML = val
         this.openExternalLinksInAnewTab()
+        this.dispatchEvent(new CustomEvent('modal-updated',{detail:{lastElement:this.lastElement}}))
     }
 
     openExternalLinksInAnewTab() {

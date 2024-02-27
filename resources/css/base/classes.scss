@@ -84,8 +84,10 @@
     padding: 1rem;
     border-radius: 1rem;
     transition: opacity 0.5s;
+    text-align: center;
     opacity: 0;
-    animation: fade 1.8s ease-in-out;
+    animation: fade 2s ease-in-out;
+    z-index: 1000;
     
   }
 

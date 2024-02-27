@@ -80,7 +80,7 @@ class AgTheme
         // Load scripts as modules.
         add_filter('script_loader_tag', function (string $tag, string $handle, string $src) {
             if (in_array($handle, ['vite', 'wordplate'])) {
-                return '<script type="module" src="' . esc_url($src) . '" defer></script>';
+                return '<script defer type="module" src="' . esc_url($src) . '" ></script>';
             }
 
             return $tag;
