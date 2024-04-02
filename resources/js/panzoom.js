@@ -1,6 +1,6 @@
 export class PanZoom {
 
-   zoomVals = { step: 0.1, start: 1, min: 1, max: 100 }
+   zoomVals = { step: 0.05, start: 1, min: 1, max: 100 }
    MOVE_THRESHOLD = 5
 
    constructor(svg) {

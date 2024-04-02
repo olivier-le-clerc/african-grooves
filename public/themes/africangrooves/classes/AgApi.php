@@ -1,10 +1,9 @@
 <?php
 
+define('POST_LIMIT',10);
+
 class AgApi
 {
-
-    const POST_LIMIT = 20;
-
     static function init()
     {
         add_action('rest_api_init', function () {
@@ -13,11 +12,12 @@ class AgApi
                 'methods' => 'POST',
                 'callback' => function (WP_REST_Request $req) {
                     $action = $req->get_json_params()['action'];
+                    $page = $req->get_json_params()['page'] ?? 1;
                     switch ($action) {
 
                         case 'fetch_content':
                             if ($url = $req->get_json_params()['url'])
-                                return ag_fetch_content($url);
+                                return ag_fetch_content($url,$page);
                             break;
 
                         case 'region':
@@ -55,8 +55,9 @@ class AgApi
 }
 
 
-function ag_fetch_content($url)
+function ag_fetch_content($url,$page = 1)
 {
+
     $res = '';
     // $args = ['post_type'=>'post'];
     if ($url) {
@@ -97,6 +98,9 @@ function ag_fetch_content($url)
                 ];
             }
         }
+
+        $args['posts_per_page'] = POST_LIMIT;
+        $args['paged'] = $page;
 
         $req = new WP_Query($args);
 

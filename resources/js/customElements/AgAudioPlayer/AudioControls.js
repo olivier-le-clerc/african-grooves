@@ -13,7 +13,7 @@ export class AudioControls extends HTMLElement {
             <button id="shuffle" event="shuffle" class="player-button button-shuffle"><i class="fa-solid fa-shuffle"></i></button>
         </div>
         <div><button id="plus" event="plus">article</button></div>
-        
+
 
     `
     }
@@ -29,10 +29,10 @@ export class AudioControls extends HTMLElement {
                 width : this.querySelector('#progress-bar').clientWidth,
             }
             let progress = (e.clientX - container.x) / container.width
-            
+
             this.progress = Math.floor(100 * progress)
 
-            this.dispatchEvent(new CustomEvent('progressBarClick', { 
+            this.dispatchEvent(new CustomEvent('progressBarClick', {
                 detail: { progress: progress } }))
         })
 

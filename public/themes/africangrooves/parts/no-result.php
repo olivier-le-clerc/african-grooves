@@ -1,10 +1,10 @@
     <article>
         <header>
-            <h2>No result</h2>
+            <h2>No more results</h2>
         </header>
         <div class="article-content">
-            <p>Sorry, there is no result for this tag.. Here is a selection of our most popular categories instead !</p>
-            
+            <p>Sorry, there is no result for this category.. Here is a selection of our most popular tags instead !</p>
+
         </div>
         <footer>
             <div class="term-list">
