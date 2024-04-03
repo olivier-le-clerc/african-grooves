@@ -25,6 +25,14 @@ class AgTheme
             flush_rewrite_rules();
         });
 
+        // init
+        add_action('after_setup_theme', function () {
+            add_theme_support('title-tag');
+            add_theme_support('menus');
+            register_nav_menu('ag_header_menu', 'Menu de l\'en-tête');
+            remove_theme_support('widgets-block-editor');
+        });
+
         // custom API endpoints
         AgApi::init();
 
@@ -40,13 +48,7 @@ class AgTheme
             }
         });
 
-        // init
-        add_action('after_setup_theme', function () {
-            add_theme_support('title-tag');
-            add_theme_support('menus');
-            register_nav_menu('ag_header_menu', 'Menu de l\'en-tête');
-            remove_theme_support('widgets-block-editor');
-        });
+
 
         //disable block editor
         add_filter('use_block_editor_for_post', '__return_false');

@@ -161,6 +161,7 @@ export function init() {
       }
       player.play()
     }
+    // click share button
     if (e.target.classList.contains('blog-button-share')) {
       let url = e.target.dataset.src;
       modal.copyToClipboard(url)

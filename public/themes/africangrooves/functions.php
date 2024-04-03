@@ -151,7 +151,7 @@ function image_sizes_restore()
 	}
 }
 
-function get_tracks(string $search = 'recent', string $tax = '')
+function get_tracks(string $search = 'recent', string $tax = '',$page = 1)
 {
 	$limit =  30;
 

@@ -1,6 +1,5 @@
 import vinylUrl from '/img/vinyl.svg'
 
-
 export class AgBlogModal extends HTMLElement {
 
   get template() {
@@ -44,7 +43,7 @@ export class AgBlogModal extends HTMLElement {
     alert.classList.add('alert')
     alert.innerHTML = `<p>${str}</p>`
     document.body.appendChild(alert)
-    // setTimeout(()=>document.body.removeChild(alert),2000)
+    setTimeout(()=>document.body.removeChild(alert),2000)
   }
 
   displayLoader() {
@@ -56,6 +55,11 @@ export class AgBlogModal extends HTMLElement {
   hideLoader() {
     this.classList.add('is-visible')
     this.classList.remove('is-loading')
+  }
+
+  copyToClipboard(string){
+    navigator.clipboard.writeText(string);
+    this.alert('url copied to clipboard')
   }
 
   displayContent(str, callback = e => e) {

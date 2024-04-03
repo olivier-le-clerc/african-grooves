@@ -1,11 +1,26 @@
 <?php
 
-define('POST_LIMIT',10);
+define('POST_LIMIT', 10);
 
 class AgApi
 {
     static function init()
     {
+        // custom api track field
+        add_action('rest_api_init', function () {
+            register_rest_field('song', 'featured-audio', [
+                'get_callback' => function ($song_arr) {
+                    $track = get_featured_audio($song_arr['id']);
+                    return get_track_data($track);
+                },
+                'schema' => array(
+                    'description' => 'description',
+                    'type'        => 'integer'
+                ),
+            ]);
+        });
+
+
         add_action('rest_api_init', function () {
 
             register_rest_route('africangrooves/v1', '/post/', [
@@ -17,7 +32,7 @@ class AgApi
 
                         case 'fetch_content':
                             if ($url = $req->get_json_params()['url'])
-                                return ag_fetch_content($url,$page);
+                                return ag_fetch_content($url, $page);
                             break;
 
                         case 'region':
@@ -37,8 +52,8 @@ class AgApi
                         case 'song_post':
                             if ($s = $req->get_json_params()['id'])
                                 $res =  SongPostType::get_song($req->get_param('id'));
-                                $res = replaceAudioPlayer($res);
-                                return $res;
+                            $res = replaceAudioPlayer($res);
+                            return $res;
                             break;
 
                         case 'track':
@@ -55,7 +70,7 @@ class AgApi
 }
 
 
-function ag_fetch_content($url,$page = 1)
+function ag_fetch_content($url, $page = 1)
 {
 
     $res = '';
@@ -82,7 +97,7 @@ function ag_fetch_content($url,$page = 1)
                     'tag' => $url[1],
                     'post_type' => SongPostType::SLUG,
                 ];
-            }elseif($url[0] == 'song'){
+            } elseif ($url[0] == 'song') {
                 $args = [
                     'post_type' => SongPostType::SLUG,
                     "name" => $url[1],

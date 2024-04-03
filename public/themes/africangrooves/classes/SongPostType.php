@@ -7,6 +7,7 @@ class SongPostType
 
     public static function register()
     {
+
         register_post_type(self::SLUG, [
             'labels' => [
                 'name' => 'African Grooves',
@@ -23,11 +24,18 @@ class SongPostType
             'public' => true,
             'menu_position' => 2,
             'menu_icon' => 'dashicons-format-audio',
-            'supports' => ['editor', 'title'],
+            'supports' => ['editor', 'title','custom-fields'],
             'has_archive' => true,
             'taxonomies' => ['post_tag'],
             'show_in_rest' => true,
             'label' => self::SLUG
+        ]);
+
+        register_post_meta(SongPostType::SLUG,'featured-audio',[
+            'type' => 'integer',
+            'description' => 'id of featured audio attachement',
+            'single' => true,
+            'show_in_rest' => true
         ]);
 
         // column headers
@@ -84,7 +92,7 @@ class SongPostType
         // save post hook
         add_action('save_post', [self::class, 'save'], 10, 3);
 
-        // don't want to include featured audio on head of the post 
+        // don't want to include featured audio on head of the post
         remove_filter('the_content', 'featured_audio_template_filter');
     }
 
@@ -175,7 +183,7 @@ class SongPostType
     }
     /**
      * Returns ID of first audio content in the file.
-     * 
+     *
      * @param WP_Post $post the post to look into
      * @return int|false attachment id if found, false otherwise.
      */
@@ -198,7 +206,7 @@ class SongPostType
 
     /**
      * Returns ID of first image content in the file.
-     * 
+     *
      * @param WP_Post $post the post to look into
      * @return int|false attachment id if found, false otherwise.
      */
@@ -241,6 +249,6 @@ class SongPostType
     }
 
     public static function removeAudioPlayer($content){
-        
+
     }
 }
