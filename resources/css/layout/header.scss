@@ -1,10 +1,13 @@
 /* ==  Site Header  ========================================== */
 
+@use '../base/sass_vars' as vars;
+
+
 #site-header {
    pointer-events: visible;
    background-color: var(--primary-color) !important;
    color: var(--secondary-color) !important;
-   padding-top: 0.5rem;
+   // padding-top: 0.5rem;
    position: relative;
    z-index: 1;
 }
@@ -18,7 +21,7 @@
    display: flex;
    align-items: center;
    justify-content: space-between;
-   padding: 0 10px 0 10px;
+   // padding: 0 10px 0 10px;
 }
 
 #header-top>* {
@@ -80,7 +83,7 @@
 
 .icon-wrap i {
    font-size: 20px;
-   padding: 0.6rem;
+   padding: 0.4rem;
    transition: all .3s;
 }
 
@@ -89,6 +92,10 @@
 }
 
 /* SearchBar */
+
+#navbar-search{
+   display: flex;
+}
 
 #navbar-search input {
    width: min(12rem, 20vw);
@@ -99,7 +106,12 @@
 }
 
 #navbar-search button {
-   display: none;
+   // display: none;
+   color: var(--secondary-color);
+}
+
+#navbar-search button:hover{
+   cursor: pointer;
 }
 
 #searchbar input:focus {
@@ -109,9 +121,8 @@
 #search-drawer {
    z-index: 10;
    display: flex;
-   justify-content: center;
+   justify-content:end;
    transition: all .3s;
-   background-color: var(--primary-color);
 }
 
 #search-drawer-toggle {
@@ -133,12 +144,14 @@
    }
 }
 
-@media screen and (max-width:700px) {
+@media screen and (max-width:vars.$breakpoint) {
    #navbar-search input {
       width: 70vw;
    }
 
    #search-drawer {
+   background-color: var(--primary-color);
+
       position: absolute;
       right: -100%;
       margin: auto;

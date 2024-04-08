@@ -13,11 +13,6 @@ spl_autoload_register(function ($class) {
 
 AgTheme::setup();
 
-function ag_pagination()
-{
-	the_posts_pagination();
-}
-
 
 //attachment meta
 add_filter('wp_update_attachment_metadata', function ($data, $post_id) {
@@ -36,7 +31,7 @@ function the_song_title(int|WP_Post $post = null)
 	if (empty($post)) {
 		$post = get_post();
 	}
-	if(is_numeric($post)){
+	if (is_numeric($post)) {
 		$post = get_post($post);
 	}
 	$artist = get_post_meta($post->ID, AgMetaBox::META_KEYS['music_band'], true);
@@ -56,7 +51,7 @@ function the_song_subtitle(WP_Post $post = null)
 	}
 	$year = get_post_meta($post->ID, 'ag_year', true);
 	if ($year) {
-		$year = str_replace('x',"0's",$year);//TODO supprimmer ligne (bdd actualisée)
+		$year = str_replace('x', "0's", $year); //TODO supprimmer ligne (bdd actualisée)
 		$res[] = $year;
 	}
 	$labels = get_the_terms($post->ID, MusicLabelTaxonomy::SLUG, '', ' | ', '');
@@ -73,7 +68,8 @@ function the_ag_terms(WP_Post $post = null)
 		$post = get_post();
 	}
 	$post_id = $post->ID;
-	$separator = ', ';
+	$before = '#';
+	$separator = ', '.$before;
 	$tags = [
 		'regions' => get_the_term_list($post_id, RegionTaxonomy::SLUG, '', $separator),
 		'styles' => get_the_term_list($post_id, MusicalGenreTaxonomy::SLUG, '', $separator),
@@ -83,14 +79,14 @@ function the_ag_terms(WP_Post $post = null)
 	foreach ($tags as $key => $val) {
 		if ($val) {
 			if ($res) {
-				$res .= ', ' . $val;
+				$res .= $separator . $val;
 			} else {
 				$res = $val;
 			}
 		}
 	}
 
-	echo $res;
+	echo $res ? $before.$res : '';
 }
 
 function generate_dynamic_map_data()
@@ -123,6 +119,7 @@ function generate_dynamic_map_data()
 			'id' => get_term_meta($term->term_id, 'ISO3166', true),
 			// 'term_id' => $term->term_id,
 			'name' => $term->name,
+			'slug' => $term->slug,
 			'count' => $term->count == 0 ? 0 : 1 + (int) (($color_levels - 1) * $term->count / $max_count),
 		];
 	}
@@ -154,7 +151,7 @@ function image_sizes_restore()
 	}
 }
 
-function get_tracks(string $search = 'recent', string $tax = '')
+function get_tracks(string $search = 'recent', string $tax = '',$page = 1)
 {
 	$limit =  30;
 
@@ -162,7 +159,7 @@ function get_tracks(string $search = 'recent', string $tax = '')
 		"title" => '',
 		"content" => [],
 	];
-
+	// recent posts
 	if ($search == 'recent') {
 		$data["title"] = 'Recent Tracks';
 		$posts = get_posts([
@@ -171,6 +168,7 @@ function get_tracks(string $search = 'recent', string $tax = '')
 			'post_status' => 'publish',
 			'fields' => 'ids',
 		]);
+		// free search
 	} elseif (empty($tax)) {
 		$data["title"] = $search;
 		$posts = get_posts([
@@ -181,6 +179,7 @@ function get_tracks(string $search = 'recent', string $tax = '')
 			'fields' => 'ids',
 		]);
 	} else {
+		// songs
 		$data["title"] = $search;
 		$posts = get_posts([
 			'numberposts' => $limit,
@@ -198,62 +197,51 @@ function get_tracks(string $search = 'recent', string $tax = '')
 	}
 
 	// get associated tracks
-	$track_ids = array_map(fn ($e) => get_post_meta($e, 'featured-audio', true), $posts);
+	// $track_ids = array_map(fn ($e) => get_post_meta($e, 'featured-audio', true), $posts);
 
-	foreach ($track_ids as $id) {
-		$track = get_post($id);
-		$image_id = get_post_thumbnail_id($id) ?? 0;
-		$row = [];
-
-		$row['id'] = $id;
-		$row['mp3_path'] = wp_get_attachment_url($track->ID);
-		$row['image_path'] = wp_get_attachment_image_url($image_id);
-		$row['song_title'] = $track->post_title;
-		$row['artist'] = get_post_meta($track->ID, '_wp_attachment_metadata', true)['artist'];
-
-		$data['content'][] = $row;
+	foreach ($posts as $id) {
+		$track = get_featured_audio($id);
+		$data['content'][] = get_track_data($track);
 	}
 	return $data;
 }
 
-function get_ajax_tracks()
+function get_featured_audio($song_id)
 {
-	$search =  wp_unslash($_POST['search'] ?? false);
-	$taxonomy = wp_unslash($_POST['taxonomy'] ?? '');
-	if ($search) {
-		wp_send_json(get_tracks($search, $taxonomy));
-	}
-	die();
+	$track_id = get_post_meta($song_id, 'featured-audio', true);
+	return get_post($track_id);
 }
 
-function get_ajax_post()
+function get_track_data(WP_Post $track)
 {
-	$id = absint($_POST['id']);
-	if ($id) {
-		$res = [];
-		global $post;
-		$post = get_post_parent($id);
-		setup_postdata($post);
-
-		ob_start();
-		get_template_part('parts/article');
-		$res['content'] = ob_get_clean();
-
-		wp_reset_postdata();
-
-		// $res = ['content' => "test"];
-		wp_send_json($res);
-	}
-	die();
+	$res = [];
+	$image_id = get_post_thumbnail_id($track->ID) ?? 0;
+	$res['post_id'] = $track->post_parent;
+	$res['mp3_path'] = wp_get_attachment_url($track->ID);
+	$res['image_path'] = wp_get_attachment_image_url($image_id);
+	$res['song_title'] = $track->post_title;
+	$res['artist'] = get_post_meta($track->ID, '_wp_attachment_metadata', true)['artist'];
+	return $res;
 }
 
-function get_ajax_content()
+function ag_tag_cloud()
 {
-	$url = sanitize_url($_POST['url']);
-	if ($url) {
-		$query = new WP_Query(wp_parse_url($url)['query']);
-		$res = $query->get_posts();
-		wp_send_json($res);
-	}
-	die();
+	$tags = get_terms([
+		'taxonomy' => [ArtistTaxonomy::SLUG, MusicalGenreTaxonomy::SLUG, MusicLabelTaxonomy::SLUG, ArtistTaxonomy::SLUG, RegionTaxonomy::SLUG],
+		'orderby' => 'count',
+		'order' => 'DESC',
+		'number' => 45,
+	]);
+	return wp_generate_tag_cloud($tags, [
+		'orderby' => 'name',
+		'order' => 'DESC'
+	]);
+}
+
+function replaceAudioPlayer($str)
+{
+	$replacement = '
+	<button class="blog-button blog-button-play" data-post_id="' . get_the_ID() . '">Play Now</button>
+	<button class="blog-button blog-button-share" data-src="' . get_the_permalink() . '">Share this song</button>';
+	return preg_replace('/<audio.*audio>/mU', $replacement, $str, 1);
 }

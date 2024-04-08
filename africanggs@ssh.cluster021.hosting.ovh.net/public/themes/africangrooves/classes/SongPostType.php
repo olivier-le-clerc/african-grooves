@@ -71,6 +71,7 @@ class SongPostType
         // custom search
         add_filter('pre_get_posts', function (WP_Query $query) {
             if ($query->is_search && !is_admin()) {
+                
                 $query->set("posts_per_page",get_option('posts_per_page'));
                 $query->set("post_type",SongPostType::SLUG);
                 $query->set("orderby",'date');

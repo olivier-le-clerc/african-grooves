@@ -7,6 +7,7 @@ class SongPostType
 
     public static function register()
     {
+
         register_post_type(self::SLUG, [
             'labels' => [
                 'name' => 'African Grooves',
@@ -23,9 +24,18 @@ class SongPostType
             'public' => true,
             'menu_position' => 2,
             'menu_icon' => 'dashicons-format-audio',
-            'supports' => ['editor', 'title'],
+            'supports' => ['editor', 'title','custom-fields'],
             'has_archive' => true,
             'taxonomies' => ['post_tag'],
+            'show_in_rest' => true,
+            'label' => self::SLUG
+        ]);
+
+        register_post_meta(SongPostType::SLUG,'featured-audio',[
+            'type' => 'integer',
+            'description' => 'id of featured audio attachement',
+            'single' => true,
+            'show_in_rest' => true
         ]);
 
         // column headers
@@ -47,15 +57,15 @@ class SongPostType
             return $columns;
         });
 
-        add_filter('default_content',function(string $post_content,WP_Post $post){
-            return $post->post_type == SongPostType::SLUG ? get_option('post_footer','') : '';
-        },10,2);
+        add_filter('default_content', function (string $post_content, WP_Post $post) {
+            return $post->post_type == SongPostType::SLUG ? get_option('post_footer', '') : '';
+        }, 10, 2);
 
         // custom columns content
         add_filter('manage_song_posts_custom_column', function ($column, $postId) {
             switch ($column) {
                 case "main-artist":
-                    echo get_post_meta($postId, 'ag_music_band',true);
+                    echo get_post_meta($postId, 'ag_music_band', true);
                     break;
                 case "thumbnail":
                     the_post_thumbnail('thumbnail', $postId);
@@ -71,10 +81,10 @@ class SongPostType
         // custom search
         add_filter('pre_get_posts', function (WP_Query $query) {
             if ($query->is_search && !is_admin()) {
-                $query->set("posts_per_page",get_option('posts_per_page'));
-                $query->set("post_type",SongPostType::SLUG);
-                $query->set("orderby",'date');
-                $query->set("nopaging",false);
+                $query->set("posts_per_page", get_option('posts_per_page'));
+                $query->set("post_type", SongPostType::SLUG);
+                $query->set("orderby", 'date');
+                $query->set("nopaging", false);
             }
             return $query;
         });
@@ -82,7 +92,7 @@ class SongPostType
         // save post hook
         add_action('save_post', [self::class, 'save'], 10, 3);
 
-        // don't want to include featured audio on head of the post 
+        // don't want to include featured audio on head of the post
         remove_filter('the_content', 'featured_audio_template_filter');
     }
 
@@ -93,7 +103,7 @@ class SongPostType
         }
 
         // auto register parent regions
-        if($terms = get_the_terms($post, 'region')){
+        if ($terms = get_the_terms($post, 'region')) {
             $regions = array_map(fn (Wp_Term $term) => $term->term_id, $terms);
             $added = [];
             foreach ($regions as $region) {
@@ -103,7 +113,7 @@ class SongPostType
                         $added[] = $parent;
                 }
             }
-            $res = wp_set_post_terms($post_id,array_merge($regions,$added),'region');
+            $res = wp_set_post_terms($post_id, array_merge($regions, $added), 'region');
         }
         $content = $post->post_content;
         if (!empty($content)) {
@@ -139,7 +149,7 @@ class SongPostType
                 // updates attachment meta
                 wp_update_attachment_metadata($mp3_id, [
                     'title' => $post->post_title,
-                    'artist' => $params['artist'],
+                    'artist' => get_post_meta($post_id,AgMetaBox::META_KEYS['music_band'],true),
                     'album' => $params['album'],
                     'year' => get_post_meta($post_id, AgMetaBox::META_KEYS['year'], true),
                     'label' => $params['label'],
@@ -159,7 +169,7 @@ class SongPostType
                 // current post becomes attachment's parent
                 wp_update_post([
                     'ID' => $image_id,
-                    'post_title' => $params['album'].' disc cover',
+                    'post_title' => $params['album'] . ' disc cover',
                     'post_parent' => $post_id,
                     'post_date' => $post->post_date,
                 ]);
@@ -173,7 +183,7 @@ class SongPostType
     }
     /**
      * Returns ID of first audio content in the file.
-     * 
+     *
      * @param WP_Post $post the post to look into
      * @return int|false attachment id if found, false otherwise.
      */
@@ -196,7 +206,7 @@ class SongPostType
 
     /**
      * Returns ID of first image content in the file.
-     * 
+     *
      * @param WP_Post $post the post to look into
      * @return int|false attachment id if found, false otherwise.
      */
@@ -221,26 +231,24 @@ class SongPostType
         return $image_id;
     }
 
-    // public static function insert(array $args, bool $wp_error = true, bool $fire_after_hooks = true)
-    // {
-    //     $post_id = wp_insert_post($args, false, $fire_after_hooks);
+    public static function get_song($id)
+    {
+        $res = [];
+        $res['link'] = get_permalink($id);
+        global $post;
+        $post = get_post($id);
+        setup_postdata($post);
 
-    //     // update attachments metadata
-    //     $mp3_id = $args['meta_input']['featured-audio'];
-    //     $image_id = $args['meta_input']['_thumbnail_id'];
-    //     set_post_thumbnail($post_id,$image_id);
-    //     set_post_thumbnail($mp3_id, $image_id);
-    //     wp_update_attachment_metadata($mp3_id, [
-    //         'title' => $args['post_title'],
-    //         'artist' => $args['tax_input']['artist'],
-    //         'album' => $args['tax_input']['disc_title'],
-    //         'year' => $args['meta_input']['ag_year'],
-    //         'label' => $args['tax_input']['music_label'],
-    //     ]);
+        ob_start();
+        get_template_part('parts/article');
+        $res['content'] = ob_get_clean();
 
-    //     if ($post_id === 0) {
-    //         echo 'erreur lors de l\'enregistrement du post <br>';
-    //     } else {
-    //     }
-    // }
+        wp_reset_postdata();
+
+        return $res;
+    }
+
+    public static function removeAudioPlayer($content){
+
+    }
 }

@@ -9,6 +9,7 @@ export default defineConfig({
     origin: 'http://localhost:5173'
   },
   base:`/public/themes/${process.env.WP_DEFAULT_THEME}/assets`,
+  minify:false,
   build: {
     target:'esnext',
     assetsDir: '',

@@ -1,20 +1,27 @@
-// @font-face {
-//     font-family: "Kamryn";
-//     src: url(../../static/fonts/kamryn/Kamryn\ 3D\ Italic\ D.otf), format("opentype");;
-// }
+
 
 @font-face {
-    font-family: "Rubik";
-    src: url(../../static/fonts/rubik/Rubik-VariableFont_wght.ttf), format("truetype");
+    font-family: 'Qebab';
+    src: url(../../static/webfonts/quebab/quebab-shadow-ffp-webfont.eot);
+    src: url(../../static/webfonts/quebab/quebab-shadow-ffp-webfont.eot?#iefix) format('embedded-opentype'),
+         url(../../static/webfonts/quebab/quebab-shadow-ffp-webfont.woff2) format('woff2'),
+         url(../../static/webfonts/quebab/quebab-shadow-ffp-webfont.woff) format('woff'),
+         url(../../static/webfonts/quebab/quebab-shadow-ffp-webfont.ttf) format('truetype'),
+         url(../../static/webfonts/quebab/quebab-shadow-ffp-webfont.svg#qebab_shadow_ffpregular) format('svg');
+    font-weight: normal;
+    font-style: normal;
+
 }
 
 @font-face {
-    font-family: "Qebab";
-    src: url(../../static/fonts/qebab-shadow/Quebab-Shadow-ffp.otf), format("opentype");
+    font-family: 'Abel';
+    src: url(../../static/webfonts/abel-regular/abel-regular-webfont.eot);
+    src: url(../../static/webfonts/abel-regular/abel-regular-webfont.eot?#iefix) format('embedded-opentype'),
+         url(../../static/webfonts/abel-regular/abel-regular-webfont.woff2) format('woff2'),
+         url(../../static/webfonts/abel-regular/abel-regular-webfont.woff) format('woff'),
+         url(../../static/webfonts/abel-regular/abel-regular-webfont.ttf) format('truetype'),
+         url(../../static/webfonts/abel-regular/abel-regular-webfont.svg#abelregular) format('svg');
+    font-weight: normal;
+    font-style: normal;
 
-}
-
-@font-face {
-    font-family: "Abel";
-    src: url(../../static/fonts/abel/Abel-Regular.ttf), format("truetype");
 }

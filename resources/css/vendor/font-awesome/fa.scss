@@ -1,0 +1,172 @@
+/*!
+ * Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+ * Copyright 2023 Fonticons, Inc.
+ */
+.fa {
+  font-family: var(--fa-style-family, "Font Awesome 6 Free");
+  font-weight: var(--fa-style, 900);
+}
+
+.fa,
+.fa-classic,
+.fa-sharp,
+.fas,
+.fa-solid,
+.far,
+.fa-regular,
+.fab,
+.fa-brands {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: var(--fa-display, inline-block);
+  font-style: normal;
+  font-variant: normal;
+  line-height: 1;
+  text-rendering: auto;
+}
+
+.fas,
+.fa-classic,
+.fa-solid,
+.far,
+.fa-regular {
+  font-family: 'Font Awesome 6 Free';
+}
+
+.fab,
+.fa-brands {
+  font-family: 'Font Awesome 6 Brands';
+}
+
+//    //////////////////////////////////////////////////////////////////
+
+.fa-tiktok:before {
+  content: "\e07b";
+}
+
+.fa-facebook:before {
+  content: "\f09a";
+}
+
+.fa-instagram:before {
+  content: "\f16d";
+}
+
+.fa-youtube:before {
+  content: "\f167";
+}
+
+.fa-play::before {
+  content: "\f04b";
+}
+
+.fa-forward-fast::before {
+  content: "\f050";
+}
+
+.fa-repeat::before {
+  content: "\f363";
+}
+
+.fa-shuffle::before {
+  content: "\f074";
+}
+
+.fa-circle-info::before {
+  content: "\f05a";
+}
+
+.fa-x::before {
+  content: "\58";
+}
+
+.fa-bars::before {
+  content: "\f0c9";
+}
+
+.fa-magnifying-glass::before {
+  content: "\f002";
+}
+
+.fa-chevron-up::before {
+  content: "\f077";
+}
+
+.fa-pause::before {
+  content: "\f04c";
+}
+
+.fa-backward-fast::before {
+  content: "\f049";
+}
+
+.fa-soundcloud:before {
+  content: "\f1be"; }
+
+img.discogs-icon{
+  min-width: 20px;
+  max-width: 20px;;
+}
+
+.fa-arrow-up-right-from-square::before {
+  content: "\f08e"; }
+
+//    //////////////////////////////////////////////////////////////////
+
+:root,
+:host {
+  --fa-style-family-brands: 'Font Awesome 6 Brands';
+  --fa-font-brands: normal 400 1em/1 'Font Awesome 6 Brands';
+}
+
+@font-face {
+  font-family: 'Font Awesome 6 Brands';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(../../../static/webfonts/font-awesome/fa-brands-400.woff2) format("woff2"), url(../../../static/webfonts/font-awesome/fa-brands-400.ttf) format("truetype");
+}
+
+.fab,
+.fa-brands {
+  font-weight: 400;
+}
+
+:root,
+:host {
+  --fa-style-family-classic: 'Font Awesome 6 Free';
+  --fa-font-regular: normal 400 1em/1 'Font Awesome 6 Free';
+}
+
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(../../../static/webfonts/font-awesome/fa-regular-400.ttf) format("woff2"), url(../../../static/webfonts/font-awesome/fa-regular-400.ttf) format("truetype");
+}
+
+.far,
+.fa-regular {
+  font-weight: 400;
+}
+
+:root,
+:host {
+  --fa-style-family-classic: 'Font Awesome 6 Free';
+  --fa-font-solid: normal 900 1em/1 'Font Awesome 6 Free';
+}
+
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url(../../../static/webfonts/font-awesome/fa-solid-900.woff2) format("woff2"), url(../../../static/webfonts/font-awesome/fa-solid-900.ttf) format("truetype");
+}
+
+.fas,
+.fa-solid {
+  font-weight: 900;
+}

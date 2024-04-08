@@ -1,31 +1,26 @@
  /* == Music Player =========================*/
 
+ @use '../base/sass_vars' as vars;
+
+
  //positionnement
 
- @media screen and (orientation:landscape) {
-    //  ag-audio-player {
-    //      right: 0.5%;
-    //      top: 1%;
-    //      width: 30%;
-    //      height: 98%;
-    //      max-width: 25rem;
-    //  }
+ @media screen and (min-width:calc(vars.$breakpoint + 1px)) {
 
      #playlist-toggle-button {
          display: none !important;
      }
  }
 
- @media screen and (orientation:portrait) {
-    //  ag-audio-player {
-    //      width: 100%;
-    //      max-height: 100%;
-    //      bottom: 0;
-    //  }
+ @media screen and (max-width:vars.$breakpoint) {
 
      ag-audio-player .body {
          height: 0;
          transition: all 0.5s;
+     }
+
+     ag-audio-player header {
+         align-items: center
      }
 
      ag-audio-player.is-open .body {
@@ -55,13 +50,15 @@
  ag-audio-player {
      color: var(--secondary-color);
 
-    //  position: absolute;
-
-     background-color: var(--primary-color);
-     padding: 0.5rem;
+    //  background-color: var(--primary-color);
+    //  padding: 0.5rem;
 
      display: flex;
      flex-direction: column;
+
+     >*{
+        background-color: var(--primary-color);
+     }
 
      h2,
      h3,
@@ -77,7 +74,7 @@
 
      header {
          gap: 0.3rem;
-
+         padding: 0.5rem;
          display: flex;
          flex-direction: column;
 
@@ -89,13 +86,26 @@
      }
 
      .body {
+        -webkit-backdrop-filter: brightness(200%);
+        backdrop-filter: brightness(200%);
          display: flex;
          flex-direction: column;
          overflow: hidden;
+         padding:0;
 
          >* {
-             margin-top: 0.3rem;
+             margin: 0.3rem;
          }
+     }
+
+     .buttons a{
+        color:var(--secondary-color)
+     }
+
+     .social-media{
+        text-align: center;
+        margin:auto;
+        max-width: vars.$sidebarWidth;
      }
 
      .scrollable {
@@ -118,7 +128,8 @@
 
  /////////////////////////////////////////////////////////////////
 
- ag-track {
+ ag-track,
+ current-track {
 
      // vars
      --img-max-width: 70px;
@@ -127,6 +138,8 @@
      grid-template-columns: var(--img-max-width) 1fr;
      grid-template-rows: repeat(3, min-content);
      column-gap: 0.3rem;
+     width: min(100%, vars.$sidebarWidth);
+     margin: 0 auto;
 
      .track-thumb {
          grid-row: 1 / -1;
@@ -135,13 +148,31 @@
          justify-self: center;
      }
 
-     .track-thumb+* {
+     .track-thumb~* {
          grid-column: 2;
      }
  }
 
  ag-track:hover {
      cursor: pointer;
+ }
+
+ ag-track.track--current {
+     animation-name: blink;
+     animation-duration: 0.5s;
+     animation-iteration-count: infinite;
+     animation-direction: alternate-reverse;
+     animation-timing-function: ease-in-out;
+ }
+
+ @keyframes blink {
+     from {
+         opacity: 1;
+     }
+
+     to {
+         opacity: 0.5;
+     }
  }
 
  ag-track.track--previous {
@@ -165,8 +196,60 @@
  }
 
 
- audio-controls {
+ audio-controls>* {
      display: flex;
      flex-wrap: nowrap;
      gap: 0.3rem;
+ }
+
+ current-track {
+
+     display: grid;
+
+     #progress-bar {
+         cursor: pointer;
+         position: relative;
+         background-color: grey;
+         min-height: 7px;
+         margin: 5px 0;
+     }
+
+     #completion {
+         position: absolute;
+         top: 0;
+         left: 0;
+         bottom: 0;
+         background-color: var(--base-color);
+         width: 0;
+     }
+
+     .autoScroll {
+        //  display: inline-block;
+         animation: autoScroll 10s infinite linear;
+     }
+
+     @keyframes autoScroll {
+         from {
+             transform: translateX(100%);
+         }
+
+         to {
+             transform: translateX(-100%);
+         }
+
+     }
+
+     #current-song-title {
+         overflow: hidden;
+     }
+
+     #current-song-title h3 {
+         text-overflow: clip;
+         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+         font-size: 1rem;
+         opacity: 0.9;
+     }
+
+
+
  }

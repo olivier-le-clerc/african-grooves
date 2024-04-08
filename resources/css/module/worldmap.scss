@@ -1,68 +1,90 @@
+@use 'sass:color';
 
+$base-color: #a2cc7a;
+$empty-country-color:rgba(105, 105, 99, 0.2);
+// $empty-country-color:rgba(158, 158, 153, 0.2);
+$bg-color:rgb(231, 231, 224);
+$bg-dark:rgb(85, 64, 64);
+
+@function lighten($col, $percent) {
+    $val: color.saturation($col) + ($percent);
+    @return color.adjust($col, $saturation: ($val));
+}
+
+@for $i from 1 to 6 {
+    #map path[data-count="#{$i}"] {
+        $arg: ($i) - 1;
+        fill: darken($base-color, ($arg*6%));
+    } 
+}
 
 #worldmap {
-    /* height: 100vh;
-    width: 100vw; */
     overflow: hidden;
+}
+
+ag-worldmap{
+    background: radial-gradient(ellipse at center, $bg-color 50%, $bg-dark 100%);
+
 }
 
 svg#map {
     width: 100%;
     height: 100%;
-    background: radial-gradient(ellipse at center, rgb(192, 165, 124) 47%, var(--background) 100%);
+
+    // filter: drop-shadow(0 0px 10px rgb(100,100,100));
 }
 
-#map:hover{
+#map:hover {
     cursor: grab;
 }
 
 #map path {
-    stroke: var(--background);
+    stroke: var(--primary-color);
     stroke-width: .5px;
-    transition: all 0.2s;
-    fill: var(--map);
+
+    transition: all 0.5s;
+    position: relative;
 }
 
-#map path:not(#map path[data-count="0"]):hover {
-    filter:brightness(80%);
+#map path:not(#map path[data-count="0"]):hover, #map path.highlight {
+    fill:lighten($base-color,5%)!important;
+}
+
+#map path:not(#map path[data-count="0"]):hover ,.hover{
     cursor: pointer;
 }
 
+// #map path.current{
+    // -webkit-animation: lightblink 0.5s alternate ease-in-out infinite;;
+    // animation: lightblink 0.5s alternate ease-in-out infinite;
+// }
+
+@keyframes lightblink {
+    to{
+        filter: brightness(1.2);
+    }
+}
+
 #map g {
-    filter: drop-shadow(0 0px 5px var(--background));
+    filter: drop-shadow(0 0px 5px var(--primary-color));
 }
 
-#map path[data-count="0"],#map path[data-count=""]{
-    fill:var(--map);
+#map path[data-count="0"],
+#map path[data-count=""] {
+    fill: $empty-country-color;
 }
-/* #map path[data-count="1"]{
-    fill:#e79275;
-}
-#map path[data-count="2"]{
-    fill:#ea846d;
-}
-#map path[data-count="3"]{
-    fill:#f1695e;
-}
-#map path[data-count="4"]{
-    fill:#f55c56;
-}
-#map path[data-count="5"]{
-    fill:#f84e4e;
-} */
 
-#map path[data-count="1"]{
-    fill:#c9c27f;
+@media screen and ( hover:none ) {
+    .tooltip{
+        display: none;
+    }
 }
-#map path[data-count="2"]{
-    fill:#b8b971;
-}
-#map path[data-count="3"]{
-    fill:#a6b064;
-}
-#map path[data-count="4"]{
-    fill:#93a859;
-}
-#map path[data-count="5"]{
-    fill:#809f4e;
+
+.tooltip {
+    border-radius: 0 0.8rem 0.8rem 0.8rem;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    position: absolute;
+    padding: 1rem;
+    z-index: 1000;
 }
