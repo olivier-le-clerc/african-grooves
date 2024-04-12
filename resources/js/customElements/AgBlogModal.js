@@ -1,6 +1,10 @@
 import vinylUrl from '/img/vinyl.svg'
+import { alert } from '../alert'
 
 export class AgBlogModal extends HTMLElement {
+
+  #endpoint
+  #currentPage
 
   get template() {
     return `
@@ -19,31 +23,76 @@ export class AgBlogModal extends HTMLElement {
 
   constructor() {
     super()
-    // this.content = ''
     let content = this.innerHTML
 
     this.innerHTML = this.template
-    this.querySelector(".slot").innerHTML = content
+    this.slot.innerHTML = content
     this.querySelector('#post-close-button').onclick = e => {
-      this.clear()
+      this.close()
     }
     this.querySelector('#post-share-button').onclick = e => {
       let url = window.location.href
-      navigator.clipboard.writeText(url).then(e => this.alert("page adress copied to clipboard"))
-
+      navigator.clipboard.writeText(url).then(e => alert("page adress copied to clipboard"))
     }
+    // infinite scrolling observer
+    this.observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.target.classList.contains("song-post") && entry.isIntersecting) {
+          observer.unobserve(entry.target)
+          this.#currentPage++
+          this.fetch()
+        }
+      })
+    })
+    //event listener
+    window.addEventListener('blog-load-content',(e)=>{
+      console.log(e.detail.url)
+      this.load(e.detail.url)
+    })
+  }
+
+  load(url = this.#endpoint) {
+    this.#endpoint = url
+    this.#currentPage = 1
+    this.clear()
+    this.displayLoader()
+    this.fetch()
+  }
+
+  fetch() {
+    let isLastPage;
+    fetch(frontend.homeUrl + '/wp-json/africangrooves/v1/from-url', {
+      method: "post",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        url: this.#endpoint,
+        args: {
+          paged: this.#currentPage
+        }
+      })
+    })
+      .then(e => {
+        isLastPage = e.headers.get('W-WP-TotalPages') <= this.#currentPage;
+        return e.json()
+      })
+      .then(e => {
+        this.addContent(e)
+        if (!isLastPage) {
+          let lastElement = this.slot.lastElementChild
+          this.observer.observe(lastElement)
+        }
+        this.hideLoader()
+      })
+      .catch(e => {
+        this.close()
+      })
   }
 
   get slot() {
     return this.querySelector('.slot')
-  }
-
-  alert(str) {
-    let alert = document.createElement('div')
-    alert.classList.add('alert')
-    alert.innerHTML = `<p>${str}</p>`
-    document.body.appendChild(alert)
-    setTimeout(()=>document.body.removeChild(alert),2000)
   }
 
   displayLoader() {
@@ -57,55 +106,36 @@ export class AgBlogModal extends HTMLElement {
     this.classList.remove('is-loading')
   }
 
-  copyToClipboard(string){
+  copyToClipboard(string) {
     navigator.clipboard.writeText(string);
-    this.alert('url copied to clipboard')
+    alert('url copied to clipboard')
   }
 
-  displayContent(str, callback = e => e) {
-    let content = callback(str)
-    this.setContent(content)
-    this.classList.add('is-visible')
-    this.classList.remove('is-loading')
-  }
+  // displayContent(str, callback = e => e) {
+  //   let content = callback(str)
+  //   this.setContent(content)
+  //   this.classList.add('is-visible')
+  //   this.classList.remove('is-loading')
+  // }
 
-  get isVisible() {
-    return this.classList.contains('is-visible') || this.classList.contains('is-loading')
-  }
-
-  get lastElement() {
-    return this.querySelector('.slot').lastElementChild
-  }
+  // get isVisible() {
+  //   return this.classList.contains('is-visible') || this.classList.contains('is-loading')
+  // }
 
   clear() {
-    this.classList.remove('is-visible', 'is-loading')
     this.slot.innerHTML = ''
-
+    this.slot.scrollTo(0, 0)
   }
 
   close() {
     this.clear()
+    this.classList.remove('is-visible', 'is-loading')
     this.dispatchEvent(new CustomEvent('blog-modal-closed'))
   }
 
-  setContent(val) {
-    this.clear()
-    this.addContent(val)
-    setTimeout(()=>this.slot.scrollTo(0, 0),100)
-
-
-    // this.openExternalLinksInAnewTab()
-    // this.dispatchEvent(new CustomEvent('modal-updated', { detail: { lastElement: this.lastElement } }))
-  }
-
   addContent(val) {
-    this.querySelector('.slot').innerHTML += val;
-    this.openExternalLinksInAnewTab()
-
-    this.dispatchEvent(new CustomEvent('modal-updated', { detail: { lastElement: this.lastElement } }))
-  }
-
-  openExternalLinksInAnewTab() {
+    this.slot.innerHTML += val;
+    //open external links in a new tab
     Array.from(this.querySelectorAll('a'))
       .filter(e => !e.href.includes(frontend.homeUrl))
       .forEach(a => a.target = "_blank")

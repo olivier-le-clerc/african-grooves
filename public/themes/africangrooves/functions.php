@@ -220,6 +220,7 @@ function get_track_data(WP_Post $track)
 	$res['mp3_path'] = wp_get_attachment_url($track->ID);
 	$res['image_path'] = wp_get_attachment_image_url($image_id);
 	$res['song_title'] = $track->post_title;
+	$res['url'] = get_permalink($track->post_parent);
 	$res['artist'] = get_post_meta($track->ID, '_wp_attachment_metadata', true)['artist'];
 	return $res;
 }

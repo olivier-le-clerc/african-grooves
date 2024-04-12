@@ -16,7 +16,9 @@ export class AgTrack extends HTMLElement {
     static get(data=null){
         let track = new AgTrack()
         track.dataset.postId = data.post_id
+        track.dataset.title = data.song_title
         track.dataset.src = data.mp3_path
+        track.dataset.url = data.url
         track.data = data
         track.innerHTML = track.template
         return track

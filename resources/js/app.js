@@ -1,4 +1,4 @@
-let player, modal
+let player, modal, blogLogic
 
 import { PanZoom } from "./panzoom.js";
 
@@ -12,40 +12,21 @@ import { AgBlogModal } from './customElements/AgBlogModal';
 customElements.define('ag-blog-modal', AgBlogModal)
 
 import { AgApi } from "./agApi.js";
+// import { BlogLogic } from "./logic.js";
 
 const defaultPlayerTitle = "Recent Tracks"
-
-let modalPage = 1;
 
 export function init() {
 
   player = document.querySelector('ag-audio-player')
   modal = document.querySelector('ag-blog-modal')
 
-  // Intersection observer
-  let observer = new IntersectionObserver((entries, observer) => {
-    entries.forEach((entry) => {
-      if (entry.target.classList.contains("song-post") && entry.isIntersecting) {
-        observer.unobserve(entry.target)
-        modalPage++;
-        renderModal(nicePath(window.location.href), modalPage)
-      }
-    })
-  }, {
-  })
-
-  modal.addEventListener('modal-updated', e => {
-    let el = e.detail.lastElement
-    if (el) {
-      observer.observe(el)
-    }
-  })
+  // blogLogic = new BlogLogic(modal)
 
   // disable map controls and closes menus when modal opened
   modal.addEventListener('blog-modal-opened', makeRoomForModal)
 
   function makeRoomForModal() {
-    modalPage = 1
     document.querySelector('#map-ui').classList.add('disableMap')
     player.classList.remove('is-open')
     closeAllDrawers()
@@ -88,12 +69,19 @@ export function init() {
 
   // song infos modal display
   player.currentTrack.buttons.plus.onclick = e => {
-    let id = player.currentTrack.dataset.postId
 
     if (!player.isPlaying)
       player.play()
 
-    displaySongPost(id)
+    let url = player.currentTrack.data.url
+
+    window.dispatchEvent(new CustomEvent('blog-load-content',{detail:{
+      url:url
+    }}))
+
+    // modal.load('/song/' + title)
+
+    // displaySongPost(id)
   }
 
   // if player plays, pause all other audios
@@ -113,7 +101,10 @@ export function init() {
     if (!player.isPlaying)
       player.play()
 
-    displaySongPost(id)
+      let title = track.dataset.title
+      modal.load('/song/' + title)
+
+    // displaySongPost(id)
   })
 
   // search form
@@ -172,9 +163,11 @@ export function init() {
 }
 
 function loadContent(url, page = 1) {
+
   url = nicePath(url)
   renderPlayer(url)
-  renderModal(url, page)
+
+  renderModal(url)
 }
 
 function nicePath(url) {
@@ -184,40 +177,22 @@ function nicePath(url) {
   return res
 }
 
-async function renderModal(url, $page = 1) {
+async function renderModal(url) {
   if (!url) return
-
   closeAllDrawers()
-  modalPage = $page
-  if ($page == 1) {
-    modal.clear()
-    modal.displayLoader()
-  }
-  AgApi.fetchContent(url, $page)
-    .then(e => {
-      if ($page == 1) {
-        modal.setContent(e)
-        modal.slot.scrollTo(0, 0)
-      }
-      else modal.addContent(e)
-      modal.hideLoader()
+  modal.load(url)
 
-
-      // if audio player played, pause main player
-      modal.querySelectorAll('audio').forEach(e => {
-        // disable right click
-        e.addEventListener('contextmenu', i => {
-          i.preventDefault()
-        })
-        e.addEventListener('play', i => {
-          pauseOtherAudiosThan(e)
-          player.pause()
-        })
-      })
-
-      return true
+  // if audio player played, pause main player
+  modal.querySelectorAll('audio').forEach(e => {
+    // disable right click
+    e.addEventListener('contextmenu', i => {
+      i.preventDefault()
     })
-    .catch(e => modal.clear())
+    e.addEventListener('play', i => {
+      pauseOtherAudiosThan(e)
+      player.pause()
+    })
+  })
 }
 
 async function renderPlayer(url) {
@@ -246,15 +221,15 @@ function closeAllDrawers() {
   document.querySelectorAll('input[type=checkbox]').forEach(e => e.checked = false)
 }
 
-function displaySongPost(id) {
-  modal.displayLoader()
-  AgApi.getSongPost(id)
-    .then(e => {
-      window.history.pushState({ name: 'ag' }, 'ag-state', e.link)
-      modal.displayContent(e.content)
-    }
-    )
-    .catch(e => modal.close())
-}
+// function displaySongPost(id) {
+//   modal.displayLoader()
+//   AgApi.getSongPost(id)
+//     .then(e => {
+//       window.history.pushState({ name: 'ag' }, 'ag-state', e.link)
+//       modal.displayContent(e.content)
+//     }
+//     )
+//     .catch(e => modal.close())
+// }
 
 

@@ -13,18 +13,21 @@ class AgApi
                     $track = get_featured_audio($song_arr['id']);
                     return get_track_data($track);
                 },
-                'schema' => array(
-                    'description' => 'description',
-                    'type'        => 'integer'
-                ),
             ]);
         });
 
 
         add_action('rest_api_init', function () {
 
+            register_rest_route('africangrooves/v1', '/from-url', [
+                'methods' => 'POST',
+                'callback' => 'from_url_handler',
+                'permission_callback' => fn () => true
+            ]);
+
             register_rest_route('africangrooves/v1', '/post/', [
                 'methods' => 'POST',
+                'permission_callback' => fn () => true,
                 'callback' => function (WP_REST_Request $req) {
                     $action = $req->get_json_params()['action'];
                     $page = $req->get_json_params()['page'] ?? 1;
@@ -69,12 +72,66 @@ class AgApi
     }
 }
 
-
-function ag_fetch_content($url, $page = 1)
+function from_url_handler($request)
 {
+    $url = $request["url"];
+    $args = array_merge(url_to_query_args($url) ?? [], $request['args'] ?? []);
+    $query = new WP_Query($args);
+    send_headers($query);
+    $content = get_content($query);
 
-    $res = '';
-    // $args = ['post_type'=>'post'];
+    //replace audio player if song
+    if ($args['post_type'] == SongPostType::SLUG) {
+        $content = array_map('replaceAudioPlayer',$content);
+    }
+    return $content;
+}
+
+function send_headers($query)
+{
+    $server = rest_get_server();
+    $server->send_header('Content-Type', 'application/json; charset=' . get_option('blog_charset'));
+    $server->send_header('X-Robots-Tag', 'noindex');
+    $server->send_header('X-Content-Type-Options', 'nosniff');
+    $server->send_header('W-WP-Total', $query->found_posts);
+    $server->send_header('W-WP-TotalPages', $query->max_num_pages);
+    $allow_headers = array(
+        'Authorization',
+        'X-WP-Nonce',
+        'Content-Disposition',
+        'Content-MD5',
+        'Content-Type',
+    );
+    $server->send_header('Access-Control-Allow-Headers', implode(', ', $allow_headers));
+}
+
+function get_content($query)
+{
+    $res = [];
+
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+
+            ob_start();
+            get_template_part('parts/article');
+            $out = ob_get_clean();
+            $res[] = $out;
+        }
+    } else {
+        ob_start();
+        get_template_part('parts/no-result');
+        $res[] = ob_get_clean();
+    }
+    wp_reset_postdata();
+    return $res;
+}
+
+function url_to_query_args($url)
+{
+    // clean url
+    $url = str_replace([get_bloginfo('url'),'index.php'],['',''],$url);
+
     if ($url) {
         $url = trim($url, '/');
         $url = explode('/', $url);
@@ -113,11 +170,21 @@ function ag_fetch_content($url, $page = 1)
                 ];
             }
         }
+        return $args;
+    }
+
+
+    function ag_fetch_content($url, $page = 1)
+    {
+
+        $res = '';
+
+        $args = url_to_query_args($url);
 
         $args['posts_per_page'] = POST_LIMIT;
         $args['paged'] = $page;
 
-        $req = new WP_Query($args);
+        $req = new WP_Query();
 
         if ($req->have_posts()) {
             while ($req->have_posts()) {
@@ -135,13 +202,13 @@ function ag_fetch_content($url, $page = 1)
                 $res .= $out;
             }
         }
-    }
 
-    if (!$res) {
-        ob_start();
-        get_template_part('parts/no-result');
-        $res = ob_get_clean();
-    }
+        if (!$res) {
+            ob_start();
+            get_template_part('parts/no-result');
+            $res = ob_get_clean();
+        }
 
-    return $res;
+        return $res;
+    }
 }
