@@ -38,16 +38,11 @@ export class AgBlogModal extends HTMLElement {
     this.observer = new IntersectionObserver((entries, observer) => {
       entries.forEach((entry) => {
         if (entry.target.classList.contains("song-post") && entry.isIntersecting) {
-          observer.unobserve(entry.target)
+          this.observer.unobserve(entry.target)
           this.#currentPage++
           this.fetch()
         }
       })
-    })
-    //event listener
-    window.addEventListener('blog-load-content',(e)=>{
-      console.log(e.detail.url)
-      this.load(e.detail.url)
     })
   }
 

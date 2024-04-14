@@ -25,6 +25,12 @@ class AgApi
                 'permission_callback' => fn () => true
             ]);
 
+            register_rest_route('africangrooves/v1', '/music', [
+                'methods' => 'POST',
+                'callback' => 'music_handler',
+                'permission_callback' => fn () => true
+            ]);
+
             register_rest_route('africangrooves/v1', '/post/', [
                 'methods' => 'POST',
                 'permission_callback' => fn () => true,
@@ -72,6 +78,56 @@ class AgApi
     }
 }
 
+function music_handler($request)
+{
+    $taxonomy = sanitize_text_field($request['args']['taxonomy'] ?? '');
+    $search = sanitize_text_field($request['args']['search'] ?? '');
+    $page = $request['args']['page'] ?? 1;
+
+    $data = [
+        'title' => strlen($search) > 0 ? $search : 'Recent tracks',
+        'content' => []
+    ];
+
+    $query = get_track_query($page,$search,$taxonomy);
+    $posts = $query->posts;
+
+    foreach ($posts as $id) {
+        $track = get_featured_audio($id);
+        $data['content'][] = get_track_data($track);
+    }
+
+    send_headers($query);
+    return $data;
+}
+
+function get_track_query($page = 1, $search = '', $taxonomy = '')
+{
+    $args = [
+        'post_type' => SongPostType::SLUG,
+        'post_status' => 'publish',
+        'fields' => 'ids',
+        'paged' => $page,
+    ];
+
+    if (taxonomy_exists($taxonomy)) {
+        $args['tax_query'] =
+            [
+                'taxonomy' => $taxonomy,
+                'field' => 'slug',
+                'terms' => sanitize_title($search)
+            ];
+    } else {
+        $args['s'] = $search;
+    }
+
+    $query = new WP_Query($args);
+    if($query->post_count == 0){
+        $query = get_track_query();
+    }
+    return $query;
+}
+
 function from_url_handler($request)
 {
     $url = $request["url"];
@@ -82,7 +138,7 @@ function from_url_handler($request)
 
     //replace audio player if song
     if ($args['post_type'] == SongPostType::SLUG) {
-        $content = array_map('replaceAudioPlayer',$content);
+        $content = array_map('replaceAudioPlayer', $content);
     }
     return $content;
 }
@@ -130,7 +186,7 @@ function get_content($query)
 function url_to_query_args($url)
 {
     // clean url
-    $url = str_replace([get_bloginfo('url'),'index.php'],['',''],$url);
+    $url = str_replace([get_bloginfo('url'), 'index.php'], ['', ''], $url);
 
     if ($url) {
         $url = trim($url, '/');

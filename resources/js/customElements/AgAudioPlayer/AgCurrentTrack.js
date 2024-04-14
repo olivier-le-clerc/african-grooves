@@ -72,7 +72,7 @@ export class AgCurrentTrack extends HTMLElement {
         // this.innerHTML = this.template
         this.dataset.postId = data.post_id
         this.dataset.src = data.mp3_path
-        this.dataset.link = data.url
+        this.dataset.url = data.url
 
         let h3 = this.querySelector("#current-song-title h3")
         let title = data.song_title + " - " + data.artist

@@ -197,7 +197,6 @@ function get_tracks(string $search = 'recent', string $tax = '',$page = 1)
 	}
 
 	// get associated tracks
-	// $track_ids = array_map(fn ($e) => get_post_meta($e, 'featured-audio', true), $posts);
 
 	foreach ($posts as $id) {
 		$track = get_featured_audio($id);

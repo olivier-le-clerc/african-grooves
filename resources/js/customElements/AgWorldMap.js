@@ -25,7 +25,6 @@ export class AgWorldMap extends HTMLElement {
 
         this.onclick = e =>{
             if (e.target.dataset.count > 0) {
-
                 clearInterval(interval)
                 this.querySelector('.highlight')?.classList.remove('highlight')
                 interval = setInterval(el=>e.target.classList.toggle('highlight'),500)

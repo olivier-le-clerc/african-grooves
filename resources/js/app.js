@@ -12,26 +12,34 @@ import { AgBlogModal } from './customElements/AgBlogModal';
 customElements.define('ag-blog-modal', AgBlogModal)
 
 import { AgApi } from "./agApi.js";
-// import { BlogLogic } from "./logic.js";
 
 const defaultPlayerTitle = "Recent Tracks"
 
 export function init() {
 
+  //  INIT  //////////////////////////////////////////////////////////////////
+
   player = document.querySelector('ag-audio-player')
   modal = document.querySelector('ag-blog-modal')
 
-  // blogLogic = new BlogLogic(modal)
+  // load content based on uri
+  loadContent(window.location.href, 1)
+
+  // panzoom init
+  let svg = document.querySelector("ag-worldmap svg")
+  new PanZoom(svg).init();
+
+
+
+  //  MODAL LOGIC  //////////////////////////////////////////////////////////////////
 
   // disable map controls and closes menus when modal opened
-  modal.addEventListener('blog-modal-opened', makeRoomForModal)
-
-  function makeRoomForModal() {
+  modal.addEventListener('blog-modal-opened', function () {
     document.querySelector('#map-ui').classList.add('disableMap')
     player.classList.remove('is-open')
     closeAllDrawers()
-  }
-
+  })
+  // enables map controls when modal closed
   modal.addEventListener('blog-modal-closed', e => {
     window.history.pushState({ name: 'ag' }, 'ag-state', frontend.homeUrl)
     document.querySelector('#map-ui').classList.remove('disableMap')
@@ -43,8 +51,7 @@ export function init() {
       modal.close()
   })
 
-  // load content based on uri
-  loadContent(window.location.href, 1)
+  //  PLAYLIST LOGIC  //////////////////////////////////////////////////////////////////
 
   // toggle playlist drawer
   player.querySelector('#playlist-toggle-button').onclick = e => {
@@ -52,9 +59,12 @@ export function init() {
     player.classList.toggle("is-open")
   }
 
-  // panzoom init
-  let svg = document.querySelector("ag-worldmap svg")
-  new PanZoom(svg).init();
+  // if player plays, pause all other audios
+  player.audio.addEventListener('play', e => {
+    pauseOtherAudiosThan(player.audio)
+  })
+
+  //  MAP LOGIC  //////////////////////////////////////////////////////////////////
 
   // country click updates player action
   svg.addEventListener("click", e => {
@@ -67,44 +77,19 @@ export function init() {
     }
   })
 
-  // song infos modal display
-  player.currentTrack.buttons.plus.onclick = e => {
+  //    //////////////////////////////////////////////////////////////////
 
-    if (!player.isPlaying)
-      player.play()
 
-    let url = player.currentTrack.data.url
-
-    window.dispatchEvent(new CustomEvent('blog-load-content',{detail:{
-      url:url
-    }}))
-
-    // modal.load('/song/' + title)
-
-    // displaySongPost(id)
-  }
-
-  // if player plays, pause all other audios
-  player.audio.addEventListener('play', e => {
-    pauseOtherAudiosThan(player.audio)
-  })
-
-  // track click action
+  // Single track article
   player.addEventListener('track-click', e => {
-    let id = e.detail.post_id
-    let track = player.playlist.querySelector(`ag-track[data-post-id="${id}"]`)
+    let url = e.detail.url
+    let track = player.playlist.querySelector(`ag-track[data-url="${url}"]`)
 
-    if (player.currentTrack.dataset.postId !== id) {
+    if (player.currentTrack.dataset.url !== url) {
       player.next(track)
     }
 
-    if (!player.isPlaying)
-      player.play()
-
-      let title = track.dataset.title
-      modal.load('/song/' + title)
-
-    // displaySongPost(id)
+    modal.load(url)
   })
 
   // search form
@@ -115,13 +100,12 @@ export function init() {
     let input = searchBar.querySelector('input')
     let s = input.value == '' ? 'recent' : input.value
     input.value = ''
-
-    AgApi.fetchSearch(s).then(e => player.update(e))
+    // AgApi.fetchSearch(s).then(e => player.update(e))
+    player.load({search:s})
   })
 
   // internal links open in modal
   document.querySelector('#map-ui').addEventListener('click', e => {
-
     let link = e.target.href ?? null
     if (link && link.includes(frontend.homeUrl) && !link.includes('wp-admin')) { // lien interne au site
       e.preventDefault()
@@ -162,7 +146,7 @@ export function init() {
 
 }
 
-function loadContent(url, page = 1) {
+function loadContent(url) {
 
   url = nicePath(url)
   renderPlayer(url)
