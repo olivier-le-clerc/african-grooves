@@ -21,9 +21,21 @@ export class AgAudioPlayer extends HTMLElement {
     this.fetch()
   }
 
+  loadFromUrl(url){
+    let args = {}
+
+    url = new URL('http://localhost:8000/index.php/region/french-west-indies/?test=test')
+    let pathArray = url.pathname.split('/').filter((el)=>el.length > 0 && el!='index.php')
+    let searchParams = url.searchParams
+
+    if(pathArray[0] == 'region')
+    args = {taxonomy:"region",search:pathArray[1]}
+
+    console.log(url.searchParams)
+  }
+
   fetch() {
     let isLastPage
-    console.log('args : ', { page: this.#currentPage, ...this.#args })
     fetch(frontend.homeUrl + '/wp-json/africangrooves/v1/music', {
       method: "post",
       mode: "cors",
@@ -39,12 +51,10 @@ export class AgAudioPlayer extends HTMLElement {
       isLastPage = e.headers.get('W-WP-TotalPages') <= this.#currentPage;
       return e.json()
     }).then(e => {
-      console.log('response : ', e)
       this.update(e, this.#currentPage != 1)
       if (!isLastPage) {
         let lastElement = this.playlist.lastElementChild
         this.observer.observe(lastElement)
-        console.log('observer set')
       }
     })
   }
@@ -151,10 +161,8 @@ export class AgAudioPlayer extends HTMLElement {
     // infinite scrolling observer
     this.observer = new IntersectionObserver((entries, observer) => {
       entries.forEach((entry) => {
-        console.log(entry.target.localName)
         if (entry.target.localName == "ag-track" && entry.isIntersecting) {
           observer.unobserve(entry.target)
-          console.log(this.#currentPage)
           this.#currentPage++
           this.fetch()
         }
@@ -201,10 +209,6 @@ export class AgAudioPlayer extends HTMLElement {
     this.currentTrack.buttons.play.classList.remove('button--is-active')
 
     clearInterval(this.intervalId)
-
-  }
-
-  contains(href) {
 
   }
 
@@ -332,8 +336,8 @@ export class AgAudioPlayer extends HTMLElement {
         }
       });
 
-      // keep reading current song
-      if (!this.isPlaying && !this.currentTrack.dataset.postId) {
+      // keep reading current song or load next if no song in player
+      if (!wasPlaying) {
         this.next()
       }
 
@@ -347,8 +351,6 @@ export class AgAudioPlayer extends HTMLElement {
   clear() {
     this.playedTracks = []
     this.playlist.innerHTML = ''
-    // this.dataset["current"] = 0
-    // this.dataset["playing"] = false
   }
 
   unshift(trackData) {

@@ -43,11 +43,19 @@
 
         <div id="controls" class="map-ui_body">
             <ag-blog-modal class="map-ui_main glass">
+                <?php if (have_posts()) : ?>
+                    <?php while (have_posts()) {
+                        the_post();
+                        get_template_part('parts/article');
+                    } ?>
+                <?php else : ?>
+                    Aucun article trouvé
+                <?php endif ?>
             </ag-blog-modal>
             <ag-audio-player class="map-ui_aside glass"></ag-audio-player>
         </div>
 
-        <ag-modal></ag-modal>
+        <!-- <ag-modal></ag-modal> -->
     </div>
 
     <div id="loader" class="layer">

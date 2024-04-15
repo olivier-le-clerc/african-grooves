@@ -23,7 +23,7 @@ export function init() {
   modal = document.querySelector('ag-blog-modal')
 
   // load content based on uri
-  loadContent(window.location.href, 1)
+  loadContent(window.location.href)
 
   // panzoom init
   let svg = document.querySelector("ag-worldmap svg")
@@ -72,8 +72,9 @@ export function init() {
       svg.querySelector('.current')?.classList.remove('current')
       e.target.classList.add('current')
       let country = e.target.dataset.name
-      AgApi.getSongsByRegion(country)
-        .then(e => { player.update(e) })
+      // AgApi.getSongsByRegion(country)
+      //   .then(e => { player.update(e) })
+      player.load({ taxonomy: "region", search: country })
     }
   })
 
@@ -101,7 +102,7 @@ export function init() {
     let s = input.value == '' ? 'recent' : input.value
     input.value = ''
     // AgApi.fetchSearch(s).then(e => player.update(e))
-    player.load({search:s})
+    player.load({ search: s })
   })
 
   // internal links open in modal
@@ -143,14 +144,15 @@ export function init() {
     }
   })
 
-
 }
 
 function loadContent(url) {
+  let pathArray = new URL(url).pathname.split('/').filter((el) => el.length > 0 && el != 'index.php')
+  if (pathArray[0] == 'region') {
+    player.load({ taxonomy: pathArray[0], search: pathArray[1] })
+  }else{
 
-  url = nicePath(url)
-  renderPlayer(url)
-
+  }
   renderModal(url)
 }
 
@@ -162,7 +164,8 @@ function nicePath(url) {
 }
 
 async function renderModal(url) {
-  if (!url) return
+  // do not display anything if home map page
+  if (!nicePath(url)) return
   closeAllDrawers()
   modal.load(url)
 
@@ -179,22 +182,6 @@ async function renderModal(url) {
   })
 }
 
-async function renderPlayer(url) {
-  // if region change playlist
-  if (url.includes('region')) {
-    let region = url.replace(/.*region\//, '').replace('/', '')
-    AgApi.getSongsByRegion(region).then(e => {
-      player.update(e)
-    })
-  } else if (player.isEmpty || player.title !== defaultPlayerTitle) {
-    AgApi.getLastTracks().then(e => {
-      player.update(e)
-
-    })
-  }
-  return true
-}
-
 function pauseOtherAudiosThan(audio) {
   document.querySelectorAll('audio').forEach(f => {
     if (f !== audio) f.pause()
@@ -204,16 +191,5 @@ function pauseOtherAudiosThan(audio) {
 function closeAllDrawers() {
   document.querySelectorAll('input[type=checkbox]').forEach(e => e.checked = false)
 }
-
-// function displaySongPost(id) {
-//   modal.displayLoader()
-//   AgApi.getSongPost(id)
-//     .then(e => {
-//       window.history.pushState({ name: 'ag' }, 'ag-state', e.link)
-//       modal.displayContent(e.content)
-//     }
-//     )
-//     .catch(e => modal.close())
-// }
 
 

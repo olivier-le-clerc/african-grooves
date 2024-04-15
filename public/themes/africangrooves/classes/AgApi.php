@@ -31,49 +31,49 @@ class AgApi
                 'permission_callback' => fn () => true
             ]);
 
-            register_rest_route('africangrooves/v1', '/post/', [
-                'methods' => 'POST',
-                'permission_callback' => fn () => true,
-                'callback' => function (WP_REST_Request $req) {
-                    $action = $req->get_json_params()['action'];
-                    $page = $req->get_json_params()['page'] ?? 1;
-                    switch ($action) {
+            //         register_rest_route('africangrooves/v1', '/post/', [
+            //             'methods' => 'POST',
+            //             'permission_callback' => fn () => true,
+            //             'callback' => function (WP_REST_Request $req) {
+            //                 $action = $req->get_json_params()['action'];
+            //                 $page = $req->get_json_params()['page'] ?? 1;
+            //                 switch ($action) {
 
-                        case 'fetch_content':
-                            if ($url = $req->get_json_params()['url'])
-                                return ag_fetch_content($url, $page);
-                            break;
+            //                     case 'fetch_content':
+            //                         if ($url = $req->get_json_params()['url'])
+            //                             return ag_fetch_content($url, $page);
+            //                         break;
 
-                        case 'region':
-                            if ($region = $req->get_json_params()['region'])
-                                return get_tracks($region, 'region');
-                            break;
+            //                     case 'region':
+            //                         if ($region = $req->get_json_params()['region'])
+            //                             return get_tracks($region, 'region');
+            //                         break;
 
-                        case 'last_tracks':
-                            return get_tracks();
-                            break;
+            //                     case 'last_tracks':
+            //                         return get_tracks();
+            //                         break;
 
-                        case 'search':
-                            if ($s = $req->get_json_params()['search'])
-                                return get_tracks($s);
-                            break;
+            //                     case 'search':
+            //                         if ($s = $req->get_json_params()['search'])
+            //                             return get_tracks($s);
+            //                         break;
 
-                        case 'song_post':
-                            if ($s = $req->get_json_params()['id'])
-                                $res =  SongPostType::get_song($req->get_param('id'));
-                            $res = replaceAudioPlayer($res);
-                            return $res;
-                            break;
+            //                     case 'song_post':
+            //                         if ($s = $req->get_json_params()['id'])
+            //                             $res =  SongPostType::get_song($req->get_param('id'));
+            //                         $res = replaceAudioPlayer($res);
+            //                         return $res;
+            //                         break;
 
-                        case 'track':
-                            if ($id = $req->get_json_params()['id']) {
-                                $track = get_featured_audio($id);
-                                return get_track_data($track);
-                            }
-                            break;
-                    }
-                },
-            ]);
+            //                     case 'track':
+            //                         if ($id = $req->get_json_params()['id']) {
+            //                             $track = get_featured_audio($id);
+            //                             return get_track_data($track);
+            //                         }
+            //                         break;
+            //                 }
+            //             },
+            //         ]);
         });
     }
 }
@@ -90,6 +90,7 @@ function music_handler($request)
     ];
 
     $query = get_track_query($page,$search,$taxonomy);
+
     $posts = $query->posts;
 
     foreach ($posts as $id) {
@@ -98,6 +99,7 @@ function music_handler($request)
     }
 
     send_headers($query);
+
     return $data;
 }
 
@@ -112,17 +114,17 @@ function get_track_query($page = 1, $search = '', $taxonomy = '')
 
     if (taxonomy_exists($taxonomy)) {
         $args['tax_query'] =
-            [
+            [[
                 'taxonomy' => $taxonomy,
                 'field' => 'slug',
-                'terms' => sanitize_title($search)
-            ];
-    } else {
+                'terms' => [sanitize_title($search)]
+            ]];
+    } else if(strlen($search) > 0) {
         $args['s'] = $search;
     }
 
     $query = new WP_Query($args);
-    if($query->post_count == 0){
+    if ($query->post_count == 0) {
         $query = get_track_query();
     }
     return $query;
