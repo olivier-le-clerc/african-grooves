@@ -30,104 +30,45 @@ class AgApi
                 'callback' => 'music_handler',
                 'permission_callback' => fn () => true
             ]);
-
-            //         register_rest_route('africangrooves/v1', '/post/', [
-            //             'methods' => 'POST',
-            //             'permission_callback' => fn () => true,
-            //             'callback' => function (WP_REST_Request $req) {
-            //                 $action = $req->get_json_params()['action'];
-            //                 $page = $req->get_json_params()['page'] ?? 1;
-            //                 switch ($action) {
-
-            //                     case 'fetch_content':
-            //                         if ($url = $req->get_json_params()['url'])
-            //                             return ag_fetch_content($url, $page);
-            //                         break;
-
-            //                     case 'region':
-            //                         if ($region = $req->get_json_params()['region'])
-            //                             return get_tracks($region, 'region');
-            //                         break;
-
-            //                     case 'last_tracks':
-            //                         return get_tracks();
-            //                         break;
-
-            //                     case 'search':
-            //                         if ($s = $req->get_json_params()['search'])
-            //                             return get_tracks($s);
-            //                         break;
-
-            //                     case 'song_post':
-            //                         if ($s = $req->get_json_params()['id'])
-            //                             $res =  SongPostType::get_song($req->get_param('id'));
-            //                         $res = replaceAudioPlayer($res);
-            //                         return $res;
-            //                         break;
-
-            //                     case 'track':
-            //                         if ($id = $req->get_json_params()['id']) {
-            //                             $track = get_featured_audio($id);
-            //                             return get_track_data($track);
-            //                         }
-            //                         break;
-            //                 }
-            //             },
-            //         ]);
         });
     }
 }
 
 function music_handler($request)
 {
-    $taxonomy = sanitize_text_field($request['args']['taxonomy'] ?? '');
-    $search = sanitize_text_field($request['args']['search'] ?? '');
-    $page = $request['args']['page'] ?? 1;
-
     $data = [
-        'title' => strlen($search) > 0 ? $search : 'Recent tracks',
+        'title' => 'Recent tracks',
         'content' => []
     ];
 
-    $query = get_track_query($page,$search,$taxonomy);
+    $url = $request["url"];
 
-    $posts = $query->posts;
-
-    foreach ($posts as $id) {
-        $track = get_featured_audio($id);
-        $data['content'][] = get_track_data($track);
-    }
-
-    send_headers($query);
-
-    return $data;
-}
-
-function get_track_query($page = 1, $search = '', $taxonomy = '')
-{
-    $args = [
+    $default_args = [
         'post_type' => SongPostType::SLUG,
         'post_status' => 'publish',
         'fields' => 'ids',
-        'paged' => $page,
+        'paged' => $request['page'],
     ];
+    $args = array_merge($default_args, url_to_query_args($url) ?? [], $request['args'] ?? []);
 
-    if (taxonomy_exists($taxonomy)) {
-        $args['tax_query'] =
-            [[
-                'taxonomy' => $taxonomy,
-                'field' => 'slug',
-                'terms' => [sanitize_title($search)]
-            ]];
-    } else if(strlen($search) > 0) {
-        $args['s'] = $search;
-    }
+    $data['title'] = $args['s'] ?? $args['tax_query'][0]['terms'] ?? 'Recent Track';
+    $data['args'] = $args;
 
     $query = new WP_Query($args);
-    if ($query->post_count == 0) {
-        $query = get_track_query();
+
+
+
+    $posts = $query->posts;
+
+
+    foreach ($posts as $id) {
+
+        $track = get_featured_audio($id);
+        $data['content'][] = get_track_data($track);
     }
-    return $query;
+    send_headers($query);
+
+    return $data;
 }
 
 function from_url_handler($request)
@@ -188,6 +129,10 @@ function get_content($query)
 function url_to_query_args($url)
 {
     // clean url
+    $parsed = parse_url($url);
+    parse_str($parsed['query'],$query_vars);
+    $url = $parsed['path'];
+
     $url = str_replace([get_bloginfo('url'), 'index.php'], ['', ''], $url);
 
     if ($url) {
@@ -228,45 +173,6 @@ function url_to_query_args($url)
                 ];
             }
         }
-        return $args;
-    }
-
-
-    function ag_fetch_content($url, $page = 1)
-    {
-
-        $res = '';
-
-        $args = url_to_query_args($url);
-
-        $args['posts_per_page'] = POST_LIMIT;
-        $args['paged'] = $page;
-
-        $req = new WP_Query();
-
-        if ($req->have_posts()) {
-            while ($req->have_posts()) {
-                $req->the_post();
-
-                ob_start();
-                get_template_part('parts/article');
-                $out = ob_get_clean();
-
-                //replace audio player if song
-                if ($args['post_type'] == SongPostType::SLUG) {
-                    $out = replaceAudioPlayer($out);
-                }
-
-                $res .= $out;
-            }
-        }
-
-        if (!$res) {
-            ob_start();
-            get_template_part('parts/no-result');
-            $res = ob_get_clean();
-        }
-
-        return $res;
+        return array_merge($args,$query_vars);
     }
 }

@@ -74,7 +74,7 @@ export function init() {
       let country = e.target.dataset.name
       // AgApi.getSongsByRegion(country)
       //   .then(e => { player.update(e) })
-      player.load({ taxonomy: "region", search: country })
+      player.load(window.origin + "/region/" + country)
     }
   })
 
@@ -102,7 +102,8 @@ export function init() {
     let s = input.value == '' ? 'recent' : input.value
     input.value = ''
     // AgApi.fetchSearch(s).then(e => player.update(e))
-    player.load({ search: s })
+    console.log(window.location.href)
+    player.load(window.location.href + '?s=' + s)
   })
 
   // internal links open in modal
@@ -147,12 +148,7 @@ export function init() {
 }
 
 function loadContent(url) {
-  let pathArray = new URL(url).pathname.split('/').filter((el) => el.length > 0 && el != 'index.php')
-  if (pathArray[0] == 'region') {
-    player.load({ taxonomy: pathArray[0], search: pathArray[1] })
-  }else{
-
-  }
+  player.load(url)
   renderModal(url)
 }
 

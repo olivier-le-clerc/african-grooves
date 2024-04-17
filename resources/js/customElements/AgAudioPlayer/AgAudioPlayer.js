@@ -11,31 +11,18 @@ import discogsUrl from '/img/Discogs_icon.svg'
 
 export class AgAudioPlayer extends HTMLElement {
 
-  #args
+  #url
   #currentPage
+  #isLastPage
 
-  load(args = this.args) {
+  load(url = this.url) {
     this.clear()
-    this.#args = args
+    this.#url = url
     this.#currentPage = 1
     this.fetch()
   }
 
-  loadFromUrl(url){
-    let args = {}
-
-    url = new URL('http://localhost:8000/index.php/region/french-west-indies/?test=test')
-    let pathArray = url.pathname.split('/').filter((el)=>el.length > 0 && el!='index.php')
-    let searchParams = url.searchParams
-
-    if(pathArray[0] == 'region')
-    args = {taxonomy:"region",search:pathArray[1]}
-
-    console.log(url.searchParams)
-  }
-
   fetch() {
-    let isLastPage
     fetch(frontend.homeUrl + '/wp-json/africangrooves/v1/music', {
       method: "post",
       mode: "cors",
@@ -43,16 +30,17 @@ export class AgAudioPlayer extends HTMLElement {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
+        url: this.#url,
         args: {
-          page: this.#currentPage, ...this.#args
+          paged: this.#currentPage
         }
       })
     }).then(e => {
-      isLastPage = e.headers.get('W-WP-TotalPages') <= this.#currentPage;
+      this.#isLastPage = e.headers.get('W-WP-TotalPages') <= this.#currentPage;
       return e.json()
     }).then(e => {
       this.update(e, this.#currentPage != 1)
-      if (!isLastPage) {
+      if (!this.#isLastPage) {
         let lastElement = this.playlist.lastElementChild
         this.observer.observe(lastElement)
       }
@@ -178,6 +166,9 @@ export class AgAudioPlayer extends HTMLElement {
   // get isPlaying() { return !this.audio.paused && this.audio.duration > 0; }
 
   get title() { return this.querySelector('#audio-player-main-title') }
+  set title(value) {
+    this.title.innerHTML = value[0].toUpperCase() + value.slice(1);
+  }
 
   get audio() { return this.querySelector('audio') }
 
@@ -315,8 +306,7 @@ export class AgAudioPlayer extends HTMLElement {
 
     if (playlistData.content.length > 0) {
       // update title
-      let title = playlistData.title
-      this.title.innerHTML = title[0].toUpperCase() + title.slice(1);
+      this.title = playlistData.title
       if (!append) {
         // update playlist
         this.clear()
