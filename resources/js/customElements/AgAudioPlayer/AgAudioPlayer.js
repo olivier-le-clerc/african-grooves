@@ -15,22 +15,62 @@ export class AgAudioPlayer extends HTMLElement {
   #currentPage
   #isLastPage
 
-  load(url = this.url) {
-    this.clear()
-    this.#url = url
-    this.#currentPage = 1
-    this.fetch()
+  #observedTrack
+
+  observe(element) {
+    if (!element instanceof AgTrack) {
+      throw new Error('observed element must be instance of AgTrack')
+    }
+    if (this.#observedTrack && this.#observedTrack !== element) {
+      this.observer.unobserve(this.#observedTrack)
+    }
+    this.#observedTrack = element
+    this.observer.observe(element)
   }
 
-  fetch() {
-    fetch(frontend.homeUrl + '/wp-json/africangrooves/v1/music', {
+  async load(url) {
+    if (url == this.#url) return
+    let data = await this.fetch(url)
+    if (data.content.length > 0) {
+      this.clear()
+      this.#url = url
+      this.#currentPage = 1
+      this.update(data)
+      if (!this.#isLastPage) {
+        this.observe(this.playlist.lastElementChild)
+      }
+    }
+    return data
+  }
+
+  async loadSingle(id) {
+    let res = await fetch(frontend.homeUrl + '/wp-json/africangrooves/v1/music', {
       method: "post",
       mode: "cors",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        url: this.#url,
+        url: url,
+        args: {
+          p: id
+        }
+      })
+    })
+    if (res.content.length > 0)
+      this.add(res.content[0],false)
+  }
+
+
+  async fetch(url = this.#url) {
+    return fetch(frontend.homeUrl + '/wp-json/africangrooves/v1/music', {
+      method: "post",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        url: url,
         args: {
           paged: this.#currentPage
         }
@@ -38,13 +78,17 @@ export class AgAudioPlayer extends HTMLElement {
     }).then(e => {
       this.#isLastPage = e.headers.get('W-WP-TotalPages') <= this.#currentPage;
       return e.json()
-    }).then(e => {
-      this.update(e, this.#currentPage != 1)
-      if (!this.#isLastPage) {
-        let lastElement = this.playlist.lastElementChild
-        this.observer.observe(lastElement)
-      }
     })
+  }
+
+  async more() {
+    this.#currentPage++
+    let data = await this.fetch()
+    data.content.forEach(e => this.add(e))
+    if (!this.#isLastPage) {
+      this.observe(this.playlist.lastElementChild)
+    }
+    return data
   }
 
   get template() {
@@ -88,6 +132,7 @@ export class AgAudioPlayer extends HTMLElement {
 
     this.playedTracks = []
     this.isPlaying = false
+    // this.#url = window.location.href + 'song/'
 
     this.settings = {
       repeat: false,
@@ -151,8 +196,7 @@ export class AgAudioPlayer extends HTMLElement {
       entries.forEach((entry) => {
         if (entry.target.localName == "ag-track" && entry.isIntersecting) {
           observer.unobserve(entry.target)
-          this.#currentPage++
-          this.fetch()
+          this.more()
         }
       })
     })
@@ -187,7 +231,6 @@ export class AgAudioPlayer extends HTMLElement {
     this.audio.play()
     this.isPlaying = true
     this.currentTrack.buttons.play.classList.add('button--is-active')
-
     this.intervalId = setInterval(e => {
       let percent = 100 * this.audio.currentTime / this.audio.duration
       this.currentTrack.progress = percent
@@ -252,6 +295,8 @@ export class AgAudioPlayer extends HTMLElement {
 
       if (this.isPlaying) this.play()
 
+    } else if (!this.#isLastPage) {
+      this.more().then(e => this.next())
     } else {
       // Tous les morceaux ont été joués, réinitialise la playlist
       this.querySelectorAll('.track--previous').forEach(e => {

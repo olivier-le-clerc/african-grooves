@@ -37,7 +37,7 @@ class AgApi
 function music_handler($request)
 {
     $data = [
-        'title' => 'Recent tracks',
+        'title' => '',
         'content' => []
     ];
 
@@ -51,7 +51,7 @@ function music_handler($request)
     ];
     $args = array_merge($default_args, url_to_query_args($url) ?? [], $request['args'] ?? []);
 
-    $data['title'] = $args['s'] ?? $args['tax_query'][0]['terms'] ?? 'Recent Track';
+    $data['title'] = $args['s'] ?? $args['tax_query'][0]['terms'] ?? 'Recent Tracks';
     $data['args'] = $args;
 
     $query = new WP_Query($args);
@@ -77,12 +77,13 @@ function from_url_handler($request)
     $args = array_merge(url_to_query_args($url) ?? [], $request['args'] ?? []);
     $query = new WP_Query($args);
     send_headers($query);
-    $content = get_content($query);
 
     //replace audio player if song
-    if ($args['post_type'] == SongPostType::SLUG) {
-        $content = array_map('replaceAudioPlayer', $content);
-    }
+    // if ($args['post_type'] == SongPostType::SLUG) {
+    //     $content = array_map('replaceAudioPlayer', $content);
+    // }
+
+    $content = get_content($query, $args['post_type'] == SongPostType::SLUG ? 'replaceAudioPlayer' : fn ($e) => $e);
     return $content;
 }
 
@@ -104,7 +105,7 @@ function send_headers($query)
     $server->send_header('Access-Control-Allow-Headers', implode(', ', $allow_headers));
 }
 
-function get_content($query)
+function get_content($query, $callback = null)
 {
     $res = [];
 
@@ -115,7 +116,7 @@ function get_content($query)
             ob_start();
             get_template_part('parts/article');
             $out = ob_get_clean();
-            $res[] = $out;
+            $res[] = $callback ? $callback($out) : $out;
         }
     } else {
         ob_start();
@@ -130,7 +131,7 @@ function url_to_query_args($url)
 {
     // clean url
     $parsed = parse_url($url);
-    parse_str($parsed['query'],$query_vars);
+    parse_str($parsed['query'], $query_vars);
     $url = $parsed['path'];
 
     $url = str_replace([get_bloginfo('url'), 'index.php'], ['', ''], $url);
@@ -173,6 +174,6 @@ function url_to_query_args($url)
                 ];
             }
         }
-        return array_merge($args,$query_vars);
+        return array_merge($args, $query_vars);
     }
 }

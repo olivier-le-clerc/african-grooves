@@ -1,4 +1,12 @@
-let player, modal, blogLogic
+//  TODO  //////////////////////////////////////////////////////////////////
+
+// clic sur play now quand chanson pas dans playlist fails
+
+
+//    //////////////////////////////////////////////////////////////////
+
+let player, modal
+
 
 import { PanZoom } from "./panzoom.js";
 
@@ -99,20 +107,21 @@ export function init() {
   searchBar.querySelector('button').addEventListener('click', e => {
     e.preventDefault()
     let input = searchBar.querySelector('input')
-    let s = input.value == '' ? 'recent' : input.value
+    let s = input.value == '' ? 'Recent tracks' : input.value
     input.value = ''
-    // AgApi.fetchSearch(s).then(e => player.update(e))
-    console.log(window.location.href)
+    modal.load(window.location.href + '?s=' + s)
     player.load(window.location.href + '?s=' + s)
   })
 
   // internal links open in modal
   document.querySelector('#map-ui').addEventListener('click', e => {
     let link = e.target.href ?? null
-    if (link && link.includes(frontend.homeUrl) && !link.includes('wp-admin')) { // lien interne au site
+    if (link &&  link.includes(frontend.homeUrl) && !link.includes('wp-admin')) { // lien interne au site
       e.preventDefault()
-      window.history.pushState({ name: 'ag' }, 'ag-state', link)
-      loadContent(link)
+      if(link!==window.location.href){
+        window.history.pushState({ name: 'ag' }, 'ag-state', link)
+        loadContent(link)
+      }
     }
   })
 
@@ -161,7 +170,10 @@ function nicePath(url) {
 
 async function renderModal(url) {
   // do not display anything if home map page
-  if (!nicePath(url)) return
+  if (!nicePath(url)){
+    modal.close()
+    return
+  }
   closeAllDrawers()
   modal.load(url)
 

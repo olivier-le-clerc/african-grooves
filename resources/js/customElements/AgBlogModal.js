@@ -101,21 +101,15 @@ export class AgBlogModal extends HTMLElement {
     this.classList.remove('is-loading')
   }
 
-  copyToClipboard(string) {
-    navigator.clipboard.writeText(string);
-    alert('url copied to clipboard')
+  async copyToClipboard(string) {
+    try {
+      await navigator.clipboard.writeText(string)
+      alert('url copied to clipboard');
+    } catch (e) {
+      alert('failed to copy url');
+      console.error('failed to copy', e)
+    }
   }
-
-  // displayContent(str, callback = e => e) {
-  //   let content = callback(str)
-  //   this.setContent(content)
-  //   this.classList.add('is-visible')
-  //   this.classList.remove('is-loading')
-  // }
-
-  // get isVisible() {
-  //   return this.classList.contains('is-visible') || this.classList.contains('is-loading')
-  // }
 
   clear() {
     this.slot.innerHTML = ''
