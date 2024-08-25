@@ -2,7 +2,8 @@
   "type": "module",
   "scripts": {
     "pulluploads": "rsync -av --delete africanggs@ssh.cluster021.hosting.ovh.net:~/dev/wp-content/uploads/ ./public/uploads",
-    "push": "npm run build && rsync -av --delete --exclude=uploads --exclude=.git --exclude=.env --exclude=.htaccess ./ africanggs@ssh.cluster021.hosting.ovh.net:~/dev/",
+    "push-dev": "npm run build && rsync -av --delete --exclude=uploads --exclude=resources --exclude=.git --exclude=.env --exclude=.htaccess ./ africanggs@ssh.cluster021.hosting.ovh.net:~/dev/",
+    "push-prod": "npm run build && rsync -av --delete --exclude=uploads --exclude=resources --exclude=.git --exclude=.env --exclude=.htaccess ./ africanggs@ssh.cluster021.hosting.ovh.net:~/www/",
     "build": "vite build",
     "frontend": "vite",
     "backend": "php -S localhost:8000 -t public/",

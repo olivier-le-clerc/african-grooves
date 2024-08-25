@@ -32,7 +32,7 @@ export class AgBlogModal extends HTMLElement {
     }
     this.querySelector('#post-share-button').onclick = e => {
       let url = window.location.href
-      navigator.clipboard.writeText(url).then(e => alert("page adress copied to clipboard"))
+      this.copyToClipboard(url)
     }
     // infinite scrolling observer
     this.observer = new IntersectionObserver((entries, observer) => {

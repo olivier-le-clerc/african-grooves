@@ -91,14 +91,8 @@ export function init() {
 
   // Single track article
   player.addEventListener('track-click', e => {
-    let url = e.detail.url
-    let track = player.playlist.querySelector(`ag-track[data-url="${url}"]`)
-
-    if (player.currentTrack.dataset.url !== url) {
-      player.next(track)
-    }
-
-    modal.load(url)
+    window.history.pushState({ name: 'ag' }, 'ag-state', e.detail.url)
+    modal.load(e.detail.url)
   })
 
   // search form
@@ -116,9 +110,9 @@ export function init() {
   // internal links open in modal
   document.querySelector('#map-ui').addEventListener('click', e => {
     let link = e.target.href ?? null
-    if (link &&  link.includes(frontend.homeUrl) && !link.includes('wp-admin')) { // lien interne au site
+    if (link && link.includes(frontend.homeUrl) && !link.includes('wp-admin')) { // lien interne au site
       e.preventDefault()
-      if(link!==window.location.href){
+      if (link !== window.location.href) {
         window.history.pushState({ name: 'ag' }, 'ag-state', link)
         loadContent(link)
       }
@@ -157,7 +151,7 @@ export function init() {
 }
 
 function loadContent(url) {
-  player.load(url)
+  player.load(url.replace(/song\/.+/i,'/song/'))
   renderModal(url)
 }
 
@@ -170,7 +164,7 @@ function nicePath(url) {
 
 async function renderModal(url) {
   // do not display anything if home map page
-  if (!nicePath(url)){
+  if (!nicePath(url)) {
     modal.close()
     return
   }

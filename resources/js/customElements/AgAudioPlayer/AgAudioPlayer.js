@@ -30,7 +30,7 @@ export class AgAudioPlayer extends HTMLElement {
 
   async load(url) {
     if (url == this.#url) return
-    let data = await this.fetch(url)
+    let data = await this.fetch(url,1)
     if (data.content.length > 0) {
       this.clear()
       this.#url = url
@@ -62,7 +62,7 @@ export class AgAudioPlayer extends HTMLElement {
   }
 
 
-  async fetch(url = this.#url) {
+  async fetch(url = this.#url,page = this.#currentPage) {
     return fetch(frontend.homeUrl + '/wp-json/africangrooves/v1/music', {
       method: "post",
       mode: "cors",
@@ -72,7 +72,7 @@ export class AgAudioPlayer extends HTMLElement {
       body: JSON.stringify({
         url: url,
         args: {
-          paged: this.#currentPage
+          paged: page
         }
       })
     }).then(e => {
